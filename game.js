@@ -176,6 +176,9 @@ function addClouds(goal, world) {
     for (let i = 0; i < 7; i++) {
         const group = new THREE.Group();
         const material = makeMaterial(isNight ? '#5a4d8f' : '#ffffff', .9, 0);
+        material.transparent = true;
+        material.opacity = isNight ? .42 : .55;
+        material.depthWrite = false;
         if (isNight) { material.emissive = new THREE.Color('#7a5fd8'); material.emissiveIntensity = .25; }
         const lumps = 3 + Math.floor(Math.random() * 2);
         for (let l = 0; l < lumps; l++) {
@@ -184,7 +187,8 @@ function addClouds(goal, world) {
             puff.scale.y = .6;
             group.add(puff);
         }
-        group.position.set(-15 + Math.random() * (goal + 30), 14 + Math.random() * 8, -18 + Math.random() * 36);
+        group.position.set(-15 + Math.random() * (goal + 30), 25 + Math.random() * 7, (Math.random() < .5 ? -1 : 1) * (28 + Math.random() * 14));
+        group.renderOrder = -1;
         group.userData.speed = .35 + Math.random() * .4;
         scene.add(group);
         gameState.clouds.push(group);

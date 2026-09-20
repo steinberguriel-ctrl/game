@@ -1,10 +1,10 @@
 <!doctype html>
-<html lang="he" dir="rtl">
+<html lang="en" dir="ltr">
 
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>קו הסיום | בית</title>
+    <title>Finish Line | Home</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link
@@ -18,56 +18,56 @@
 <body>
     <main class="home-app">
         <header class="home-header">
-            <div class="logo"><i></i>קו הסיום</div>
-            <div class="coin-counter" aria-label="כמות מטבעות"><span class="coin-icon">●</span><strong
-                    id="coin-total-header">0</strong><small>מטבעות</small></div>
-            <button class="mute-button" type="button" aria-label="השתקת מנגינה">🔊</button>
-            <div class="header-note"><b></b> מסלול 01 · חם מאוד</div>
+            <div class="logo"><i></i>Finish Line</div>
+            <div class="coin-counter" aria-label="Coin count"><span class="coin-icon">●</span><strong
+                    id="coin-total-header">0</strong><small>coins</small></div>
+            <button class="mute-button" type="button" aria-label="Mute music">🔊</button>
+            <div class="header-note"><b></b> Track 01 · Very hot</div>
         </header>
         <section class="home-hero">
-            <div class="hero-copy"><span class="eyebrow">המסע שלך</span>
-                <h1>השלבים</h1>
-                <div id="stage-track" class="stage-track" aria-label="מסלול השלבים"></div>
+            <div class="hero-copy"><span class="eyebrow">YOUR JOURNEY</span>
+                <h1>Stages</h1>
+                <div id="stage-track" class="stage-track" aria-label="Stage track"></div>
             </div>
             <div class="hero-scene">
                 <div class="sun"></div>
                 <div class="mountain back"></div>
                 <div class="mountain front"></div>
                 <div class="lava-line"></div>
-                <div id="hero-model" class="hero-model" aria-label="הדמות שלך"></div>
+                <div id="hero-model" class="hero-model" aria-label="Your character"></div>
             </div>
         </section>
-        <nav class="home-nav" aria-label="ניווט מסך הבית"><button class="nav-item active"
-                data-screen="home-view"><span>⌂</span>בית</button><button id="next-stage-button"
-                class="nav-item play-nav" type="button"><span>▶</span>שחק</button><button class="nav-item"
-                data-screen="trophies-view"><span>♜</span>גביעים</button></nav>
+        <nav class="home-nav" aria-label="Home screen navigation"><button class="nav-item active"
+                data-screen="home-view"><span>⌂</span>Home</button><button id="next-stage-button"
+                class="nav-item play-nav" type="button"><span>▶</span>Play</button><button class="nav-item"
+                data-screen="trophies-view"><span>♜</span>Trophies</button></nav>
         <section id="home-view" class="view active-view">
-            <div><span class="eyebrow">המסלול שלך</span>
-                <h2>ממשיכים מכאן.</h2>
+            <div><span class="eyebrow">YOUR TRACK</span>
+                <h2>Continue from here.</h2>
             </div>
             <div class="status-card">
                 <div class="status-number">01</div>
-                <div><b id="stage-status-title">הישרדות</b><span id="stage-status-copy">השלב הראשון מוכן</span></div>
+                <div><b id="stage-status-title">Survival</b><span id="stage-status-copy">The first stage is ready</span></div>
                 <strong id="stage-status-mark">→</strong>
             </div>
         </section>
         <section id="trophies-view" class="view">
-            <div><span class="eyebrow">הישגים</span>
-                <h2>כל צעד נספר.</h2>
+            <div><span class="eyebrow">ACHIEVEMENTS</span>
+                <h2>Every step counts.</h2>
             </div>
             <div class="trophy-card"><button id="coin-bag-button" class="coin-bag"
-                    aria-label="קבלת מטבעות"><span>●</span><span>●</span><span>●</span></button>
-                <div><b>שק מטבעות</b><span>לחץ כדי לקבל מטבעות</span></div><strong id="coin-total">+250</strong>
+                    aria-label="Collect coins"><span>●</span><span>●</span><span>●</span></button>
+                <div><b>Coin bag</b><span>Click to get coins</span></div><strong id="coin-total">+250</strong>
             </div>
         </section>
         <div id="coin-reward-modal" class="coin-reward-modal" hidden>
             <div class="coin-reward-box"><button id="close-reward" class="close-reward"
-                    aria-label="סגירה">×</button><span class="eyebrow">פרס מסלול</span>
-                <h2>שק מטבעות</h2>
+                    aria-label="Close">×</button><span class="eyebrow">TRACK REWARD</span>
+                <h2>Coin bag</h2>
                 <div class="large-coin-bag"><span>●</span><span>●</span><span>●</span></div><strong
-                    id="reward-value">קיבלת: 0</strong>
-                <p id="reward-progress">לחיצה נוספת לפתיחת השק</p><button id="collect-reward" class="collect-button">קבל
-                    מטבעות</button>
+                    id="reward-value">You got: 0</strong>
+                <p id="reward-progress">Click again to open the bag</p><button id="collect-reward" class="collect-button">Collect
+                    coins</button>
             </div>
         </div>
     </main>

@@ -30,8 +30,8 @@
     min-height: 88px;
     padding: 12px 9px;
     z-index: 1;
-    text-align: right;
-    direction: rtl;
+    text-align: left;
+    direction: ltr;
     background: rgba(20, 48, 48, .82);
     border: 1px solid rgba(245, 240, 232, .22);
     color: var(--cream);
@@ -291,7 +291,7 @@
 .close-reward {
     position: absolute;
     top: 8px;
-    left: 12px;
+    right: 12px;
     border: 0;
     background: none;
     color: #172a2a;
@@ -444,7 +444,7 @@ body {
     height: 7px;
     border-radius: 50%;
     background: #62ca89;
-    margin-left: 6px
+    margin-right: 6px
 }
 
 .home-hero {
@@ -612,7 +612,7 @@ body {
 
 .nav-item span {
     font-size: 17px;
-    margin-left: 6px
+    margin-right: 6px
 }
 
 .nav-item.active {
@@ -655,7 +655,7 @@ body {
 .status-number {
     font: 700 34px 'Space Grotesk';
     color: var(--yellow);
-    margin-left: 20px
+    margin-right: 20px
 }
 
 .status-card b,
@@ -672,7 +672,7 @@ body {
 
 .status-card>strong,
 .trophy-card>strong {
-    margin-right: auto;
+    margin-left: auto;
     color: var(--yellow)
 }
 
@@ -683,7 +683,7 @@ body {
 .profile-model {
     width: 130px;
     height: 150px;
-    margin-left: 22px
+    margin-right: 22px
 }
 
 .profile-copy span {
@@ -708,7 +708,7 @@ body {
     background: #9b5a2e;
     border: 3px solid #e0a054;
     border-radius: 15px 15px 22px 22px;
-    margin-left: 20px;
+    margin-right: 20px;
     position: relative
 }
 

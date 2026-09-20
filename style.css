@@ -140,7 +140,7 @@ body {
     font-size: 21px;
     line-height: 0;
     vertical-align: -2px;
-    margin-right: 13px
+    margin-left: 13px
 }
 
 .primary-button:hover {
@@ -589,11 +589,11 @@ body {
     border: 1px solid #b7c2bb;
     padding: 2px 6px;
     font: 700 10px 'Space Grotesk';
-    margin-left: 4px
+    margin-right: 4px
 }
 
 .text-button {
-    margin-right: auto;
+    margin-left: auto;
     border: 0;
     background: none;
     color: var(--coral);

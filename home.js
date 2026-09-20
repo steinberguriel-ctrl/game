@@ -30,7 +30,7 @@ function isStageComplete(stage) {
 function updateMuteButton(button) {
     const muted = isMuted();
     button.textContent = muted ? '🔇' : '🔊';
-    button.setAttribute('aria-label', muted ? 'הפעלת מנגינה' : 'השתקת מנגינה');
+    button.setAttribute('aria-label', muted ? 'Unmute music' : 'Mute music');
 }
 
 function updateStageState() {
@@ -44,13 +44,13 @@ function updateStageState() {
         card.type = 'button';
         card.dataset.stage = String(stage);
         card.className = `stage-card ${complete ? 'completed' : unlocked ? 'next' : 'locked'}`;
-        card.innerHTML = `<span>${String(stage).padStart(2, '0')}</span><b>${stageName(stage)}</b><small>${complete ? 'הושלם ✓' : unlocked ? 'מוכן למשחק' : 'נעול'}</small>`;
+        card.innerHTML = `<span>${String(stage).padStart(2, '0')}</span><b>${stageName(stage)}</b><small>${complete ? 'Completed ✓' : unlocked ? 'Ready to play' : 'Locked'}</small>`;
         track.appendChild(card);
     }
     const complete = isStageComplete(1);
     const statusCopy = document.querySelector('#stage-status-copy');
     const statusMark = document.querySelector('#stage-status-mark');
-    statusCopy.textContent = firstOpen === 1 ? 'השלב הראשון מוכן' : `שלב ${firstOpen} מוכן`;
+    statusCopy.textContent = firstOpen === 1 ? 'The first stage is ready' : `Stage ${firstOpen} is ready`;
     statusMark.textContent = firstOpen === TOTAL_STAGES && isStageComplete(TOTAL_STAGES) ? '✓' : '→';
     track.querySelectorAll('.stage-card').forEach(card => card.addEventListener('click', () => {
         if (card.classList.contains('locked')) return;
@@ -60,10 +60,10 @@ function updateStageState() {
 }
 
 function stageName(stage) {
-    if (stage === 1) return 'הישרדות';
-    if (stage === 2) return 'עיר השמיים';
-    if (stage === 3) return 'מערת הקריסטל';
-    return `מסלול ${String(stage).padStart(2, '0')}`;
+    if (stage === 1) return 'Survival';
+    if (stage === 2) return 'Sky City';
+    if (stage === 3) return 'Crystal Cave';
+    return `Track ${String(stage).padStart(2, '0')}`;
 }
 
 function showView(id) {
@@ -103,7 +103,7 @@ updateMuteButton(muteButton);
 muteButton.addEventListener('click', () => { toggleMute(); updateMuteButton(muteButton); });
 
 function updateCoinTotal() {
-    coinTotal.textContent = `${rewardTotal} מטבעות`;
+    coinTotal.textContent = `${rewardTotal} coins`;
     coinTotalHeader.textContent = rewardTotal;
 }
 
@@ -114,10 +114,10 @@ function closeReward() {
 
 function openCoinBag() {
     rewardOpeningsLeft = 2 + Math.floor(Math.random() * 4);
-    rewardValue.textContent = 'קיבלת: 0';
-    rewardProgress.textContent = `נשארו ${rewardOpeningsLeft} פתיחות לשק`;
+    rewardValue.textContent = 'You got: 0';
+    rewardProgress.textContent = `${rewardOpeningsLeft} openings left`;
     collectRewardButton.disabled = false;
-    collectRewardButton.textContent = 'קבל מטבעות';
+    collectRewardButton.textContent = 'Collect coins';
     coinRewardModal.hidden = false;
 }
 
@@ -129,13 +129,13 @@ function collectCoins() {
     rewardOpeningsLeft -= 1;
     localStorage.setItem(COINS_STORAGE_KEY, String(rewardTotal));
     updateCoinTotal();
-    rewardValue.textContent = `קיבלת: ${amount}`;
+    rewardValue.textContent = `You got: ${amount}`;
     if (rewardOpeningsLeft) {
-        rewardProgress.textContent = `נשארו ${rewardOpeningsLeft} פתיחות לשק`;
+        rewardProgress.textContent = `${rewardOpeningsLeft} openings left`;
     } else {
-        rewardProgress.textContent = 'השק התרוקן. חזור אחרי המסלול הבא';
+        rewardProgress.textContent = 'The bag is empty. Come back after the next track.';
         collectRewardButton.disabled = true;
-        collectRewardButton.textContent = 'התקבל';
+        collectRewardButton.textContent = 'Collected';
         document.querySelector('.coin-reward-box').classList.add('reward-done');
     }
 }

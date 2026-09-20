@@ -84,7 +84,7 @@ if (joystick) {
     ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(type => joystick.addEventListener(type, resetJoystick));
 }
 const muteButton = document.querySelector('.mute-button');
-function updateMuteButton() { const muted = isMuted(); muteButton.textContent = muted ? '🔇' : '🔊'; muteButton.setAttribute('aria-label', muted ? 'הפעלת מנגינה' : 'השתקת מנגינה'); }
+function updateMuteButton() { const muted = isMuted(); muteButton.textContent = muted ? '🔇' : '🔊'; muteButton.setAttribute('aria-label', muted ? 'Unmute music' : 'Mute music'); }
 updateMuteButton();
 muteButton.addEventListener('click', () => { toggleMute(); updateMuteButton(); });
 
@@ -377,7 +377,7 @@ function buildWorld() {
 }
 function loadCharacter() { new GLTFLoader().load('./boy.glb', gltf => { player = gltf.scene; player.scale.setScalar(1.55); player.rotation.y = Math.PI / 2; player.traverse(node => { if (node.isMesh) { node.castShadow = true; node.receiveShadow = true; } }); player.position.set(0, -.2, 0); scene.add(player); if (gltf.animations.length) { playerMixer = new THREE.AnimationMixer(player); gltf.animations.forEach(clip => { playerActions[clip.name.toLowerCase()] = playerMixer.clipAction(clip); }); const idleClip = gltf.animations.find(clip => /idle|stand|rest/i.test(clip.name)) || gltf.animations[0]; activePlayerAction = playerMixer.clipAction(idleClip); activePlayerAction.play(); } }, undefined, () => { player = new THREE.Group(); player.add(new THREE.Mesh(new THREE.SphereGeometry(.55, 16, 12), makeMaterial('#172a2a'))); player.add(new THREE.Mesh(new THREE.BoxGeometry(.7, 1.4, .5), makeMaterial('#172a2a'))); player.rotation.y = Math.PI / 2; player.position.set(0, .4, 0); scene.add(player); }); }
 function setPlayerAnimation(moving) { if (!playerMixer) return; const actionName = Object.keys(playerActions).find(name => /walk|run|move/i.test(name)); const nextAction = moving && actionName ? playerActions[actionName] : Object.keys(playerActions).find(name => /idle|stand|rest/i.test(name)) ? playerActions[Object.keys(playerActions).find(name => /idle|stand|rest/i.test(name))] : activePlayerAction; if (!nextAction || nextAction === activePlayerAction) return; activePlayerAction?.fadeOut(.16); nextAction.reset().fadeIn(.16).play(); activePlayerAction = nextAction; }
-function startGame() { cancelAnimationFrame(animationFrame); createRenderer(); message.classList.add('hidden'); const level = Number(localStorage.getItem('finish-line.selected-stage')) || 1; document.querySelector('#topbar-copy').textContent = `מסלול ${String(level).padStart(2, '0')} · ${level <= 3 ? 'עולם פעיל' : 'אתגר חדש'}`; document.querySelector('#attempt-value').textContent = String(attempt).padStart(2, '0'); playerMixer = null; playerActions = {}; activePlayerAction = null; gameState = { x: 0, y: 3.95, z: 0, vx: 0, vy: 0, vz: 0, grounded: true, jumpLock: false, jumpCharging: false, jumpChargeTime: 0, over: false, rocks: [], platforms: [], coins: [], movingObstacles: [], rotatingWalls: [], enemies: [], slowZones: [], clouds: [], blinkers: [], collectedCoins: 0, goal: 119, level }; document.querySelector('#level-coins').textContent = '0'; document.querySelector('#level-best').textContent = `${Number(localStorage.getItem(`finish-line.best.${level}`)) || 0}%`; document.querySelector('#jump-charge-bar').style.width = '0%'; buildWorld(); clock = new THREE.Clock(); resize(); animationFrame = requestAnimationFrame(loop); }
+function startGame() { cancelAnimationFrame(animationFrame); createRenderer(); message.classList.add('hidden'); const level = Number(localStorage.getItem('finish-line.selected-stage')) || 1; document.querySelector('#topbar-copy').textContent = `Track ${String(level).padStart(2, '0')} · ${level <= 3 ? 'Active world' : 'New challenge'}`; document.querySelector('#attempt-value').textContent = String(attempt).padStart(2, '0'); playerMixer = null; playerActions = {}; activePlayerAction = null; gameState = { x: 0, y: 3.95, z: 0, vx: 0, vy: 0, vz: 0, grounded: true, jumpLock: false, jumpCharging: false, jumpChargeTime: 0, over: false, rocks: [], platforms: [], coins: [], movingObstacles: [], rotatingWalls: [], enemies: [], slowZones: [], clouds: [], blinkers: [], collectedCoins: 0, goal: 119, level }; document.querySelector('#level-coins').textContent = '0'; document.querySelector('#level-best').textContent = `${Number(localStorage.getItem(`finish-line.best.${level}`)) || 0}%`; document.querySelector('#jump-charge-bar').style.width = '0%'; buildWorld(); clock = new THREE.Clock(); resize(); animationFrame = requestAnimationFrame(loop); }
 function resize() { const width = canvas.clientWidth, height = canvas.clientHeight; if (!width || !height) return; renderer.setSize(width, height, false); camera.aspect = width / height; camera.updateProjectionMatrix(); }
 window.addEventListener('resize', resize);
 function loop() { const dt = Math.min(clock.getDelta(), .04); if (!gameState.over) { update(dt); if (playerMixer) playerMixer.update(dt); render(); animationFrame = requestAnimationFrame(loop); } }
@@ -485,8 +485,8 @@ function lose() {
     gameState.over = true;
     playLose();
     if (player) player.visible = false;
-    messageKicker.textContent = 'המסלול ניצח הפעם';
-    messageTitle.textContent = 'הלבה הייתה מהירה יותר.';
+    messageKicker.textContent = 'The track won this time';
+    messageTitle.textContent = 'The lava was faster.';
     attempt++;
     runDeathEffect(gameState.x, gameState.y, gameState.z, () => message.classList.remove('hidden'));
 }

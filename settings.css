@@ -1,0 +1,133 @@
+.settings-button {
+    position: fixed;
+    z-index: 30;
+    top: 17px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 40px;
+    height: 40px;
+    display: grid;
+    place-items: center;
+    border: 1px solid rgba(23, 42, 42, .28);
+    border-radius: 8px;
+    background: #f5f0e8;
+    color: #172a2a;
+    font-size: 19px;
+    line-height: 1;
+    cursor: pointer;
+    box-shadow: 0 3px 0 rgba(23, 42, 42, .25);
+}
+
+.settings-button:hover {
+    background: #ffc857;
+}
+
+/* Home page: sits next to the mute button in the dark header */
+.settings-button.on-home {
+    top: 15px;
+    left: auto;
+    right: 50%;
+    transform: translateX(173px);
+    border-color: rgba(245, 240, 232, .2);
+    background: rgba(20, 48, 48, .82);
+    color: #f5f0e8;
+    box-shadow: 0 3px 0 rgba(8, 25, 25, .25);
+}
+
+.settings-button.on-home:hover {
+    background: rgba(242, 91, 61, .9);
+}
+
+/* No settings button over the running game */
+body:has(#game-screen:not(.hidden)) .settings-button {
+    display: none;
+}
+
+.settings-modal {
+    position: fixed;
+    inset: 0;
+    z-index: 100;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    background: rgba(9, 29, 29, .78);
+}
+
+.settings-modal[hidden] {
+    display: none;
+}
+
+.settings-box {
+    position: relative;
+    width: min(360px, 100%);
+    padding: 28px 24px 24px;
+    background: #f5f0e8;
+    color: #172a2a;
+    box-shadow: 9px 9px 0 #132f30;
+}
+
+.settings-box h2 {
+    display: block !important;
+    margin: 0 0 18px;
+    font: 900 32px Heebo, sans-serif;
+    letter-spacing: -1px;
+}
+
+.settings-label {
+    display: block;
+    margin-bottom: 8px;
+    color: #f25b3d;
+    font: 700 11px 'Space Grotesk', sans-serif;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+}
+
+.settings-close {
+    position: absolute;
+    top: 8px;
+    right: 12px;
+    border: 0;
+    background: none;
+    color: #172a2a;
+    font-size: 30px;
+    line-height: 1;
+    cursor: pointer;
+}
+
+.settings-languages {
+    display: grid;
+    gap: 8px;
+}
+
+.settings-language {
+    padding: 12px 14px;
+    border: 2px solid #172a2a;
+    background: transparent;
+    color: #172a2a;
+    font: 700 15px Heebo, sans-serif;
+    text-align: left;
+    cursor: pointer;
+}
+
+.settings-language:hover {
+    background: #ffc857;
+}
+
+.settings-language.active {
+    background: #f25b3d;
+    border-color: #f25b3d;
+    color: #fff;
+}
+
+@media (max-width: 600px) {
+    /* avoids the header note running under the buttons on narrow screens */
+    .home-header .header-note {
+        display: none;
+    }
+
+    .settings-button.on-home {
+        top: 9px;
+        width: 34px;
+        height: 34px;
+    }
+}

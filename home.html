@@ -11,59 +11,60 @@
         href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800;900&family=Space+Grotesk:wght@500;700&display=swap"
         rel="stylesheet">
     <link rel="stylesheet" href="home.css">
+    <link rel="stylesheet" href="settings.css">
     <script
         type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"}}</script>
 </head>
 
 <body>
-    <main class="home-app">
+    <main class="home-app" data-i18n-title="app.homeTitle">
         <header class="home-header">
-            <div class="logo"><i></i>Finish Line</div>
-            <div class="coin-counter" aria-label="Coin count"><span class="coin-icon">●</span><strong
-                    id="coin-total-header">0</strong><small>coins</small></div>
+            <div class="logo" data-i18n="app.title"><i></i>Finish Line</div>
+            <div class="coin-counter" aria-label="Coin count" data-i18n-aria="home.coinsAria"><span class="coin-icon">●</span><strong
+                    id="coin-total-header">0</strong><small data-i18n="home.coinsLabel">coins</small></div>
             <button class="mute-button" type="button" aria-label="Mute music">🔊</button>
-            <div class="header-note"><b></b> Track 01 · Very hot</div>
+            <div class="header-note" data-i18n="track.status"><b></b> Track 01 · Very hot</div>
         </header>
         <section class="home-hero">
-            <div class="hero-copy"><span class="eyebrow">YOUR JOURNEY</span>
-                <h1>Stages</h1>
-                <div id="stage-track" class="stage-track" aria-label="Stage track"></div>
+            <div class="hero-copy"><span class="eyebrow" data-i18n="home.journey">YOUR JOURNEY</span>
+                <h1 data-i18n="home.stages">Stages</h1>
+                <div id="stage-track" class="stage-track" aria-label="Stage track" data-i18n-aria="home.stageTrackAria"></div>
             </div>
             <div class="hero-scene">
                 <div class="sun"></div>
                 <div class="mountain back"></div>
                 <div class="mountain front"></div>
                 <div class="lava-line"></div>
-                <div id="hero-model" class="hero-model" aria-label="Your character"></div>
+                <div id="hero-model" class="hero-model" aria-label="Your character" data-i18n-aria="home.characterAria"></div>
             </div>
         </section>
-        <nav class="home-nav" aria-label="Home screen navigation"><button class="nav-item active"
+        <nav class="home-nav" aria-label="Home screen navigation" data-i18n-aria="home.navAria"><button class="nav-item active" data-i18n="nav.home"
                 data-screen="home-view"><span>⌂</span>Home</button><button id="next-stage-button"
-                class="nav-item play-nav" type="button"><span>▶</span>Play</button><button class="nav-item"
+                class="nav-item play-nav" type="button" data-i18n="nav.play"><span>▶</span>Play</button><button class="nav-item" data-i18n="nav.trophies"
                 data-screen="trophies-view"><span>♜</span>Trophies</button></nav>
         <section id="home-view" class="view active-view">
-            <div><span class="eyebrow">YOUR TRACK</span>
-                <h2>Continue from here.</h2>
+            <div><span class="eyebrow" data-i18n="home.yourTrack">YOUR TRACK</span>
+                <h2 data-i18n="home.continue">Continue from here.</h2>
             </div>
             <div class="status-card">
                 <div class="status-number">01</div>
-                <div><b id="stage-status-title">Survival</b><span id="stage-status-copy">The first stage is ready</span></div>
+                <div><b id="stage-status-title" data-i18n="stage.1.name">Survival</b><span id="stage-status-copy">The first stage is ready</span></div>
                 <strong id="stage-status-mark">→</strong>
             </div>
         </section>
         <section id="trophies-view" class="view">
-            <div><span class="eyebrow">ACHIEVEMENTS</span>
-                <h2>Every step counts.</h2>
+            <div><span class="eyebrow" data-i18n="trophies.eyebrow">ACHIEVEMENTS</span>
+                <h2 data-i18n="trophies.title">Every step counts.</h2>
             </div>
             <div class="trophy-card"><button id="coin-bag-button" class="coin-bag"
-                    aria-label="Collect coins"><span>●</span><span>●</span><span>●</span></button>
-                <div><b>Coin bag</b><span>Click to get coins</span></div><strong id="coin-total">+250</strong>
+                    aria-label="Collect coins" data-i18n-aria="reward.collect"><span>●</span><span>●</span><span>●</span></button>
+                <div><b data-i18n="coinbag.title">Coin bag</b><span data-i18n="coinbag.hint">Click to get coins</span></div><strong id="coin-total">+250</strong>
             </div>
         </section>
         <div id="coin-reward-modal" class="coin-reward-modal" hidden>
             <div class="coin-reward-box"><button id="close-reward" class="close-reward"
-                    aria-label="Close">×</button><span class="eyebrow">TRACK REWARD</span>
-                <h2>Coin bag</h2>
+                    aria-label="Close" data-i18n-aria="settings.close">×</button><span class="eyebrow" data-i18n="reward.eyebrow">TRACK REWARD</span>
+                <h2 data-i18n="coinbag.title">Coin bag</h2>
                 <div class="large-coin-bag"><span>●</span><span>●</span><span>●</span></div><strong
                     id="reward-value">You got: 0</strong>
                 <p id="reward-progress">Click again to open the bag</p><button id="collect-reward" class="collect-button">Collect

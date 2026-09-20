@@ -12,23 +12,24 @@
         rel="stylesheet">
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="mobile-fix.css" />
+    <link rel="stylesheet" href="settings.css" />
 </head>
 
 <body>
-    <main class="app-shell">
+    <main class="app-shell" data-i18n-title="app.title">
         <header class="topbar">
-            <div class="brand-mark"><span class="brand-dot"></span><span>Finish Line</span></div>
+            <div class="brand-mark"><span class="brand-dot"></span><span data-i18n="app.title">Finish Line</span></div>
             <div class="topbar-status"><span class="status-light"></span><span id="topbar-copy">Track 01 · Very
                     hot</span></div>
         </header>
 
         <section id="intro-screen" class="screen intro-screen">
             <div class="intro-copy">
-                <p class="eyebrow">RUN / ESCAPE / REPEAT</p>
-                <h1>One step.<br><em>Another step.</em><br>To the edge.</h1>
-                <p class="intro-text">The world is falling apart beneath your feet. Keep moving, find your rhythm, and reach the other side before
+                <p class="eyebrow" data-i18n="intro.eyebrow">RUN / ESCAPE / REPEAT</p>
+                <h1 data-i18n-html="intro.title">One step.<br><em>Another step.</em><br>To the edge.</h1>
+                <p class="intro-text" data-i18n="intro.text">The world is falling apart beneath your feet. Keep moving, find your rhythm, and reach the other side before
                     the lava reaches you.</p>
-                <button id="trial-button" class="primary-button">First try <span>→</span></button>
+                <button id="trial-button" class="primary-button" data-i18n="intro.cta">First try <span>→</span></button>
             </div>
             <div class="intro-art" aria-hidden="true">
                 <div class="sun"></div>
@@ -42,49 +43,49 @@
 
         <section id="home-screen" class="screen home-screen hidden">
             <div class="home-panel">
-                <p class="eyebrow">WELCOME TO THE TRACK</p>
-                <h2>Ready to cross<br><span>the impossible?</span></h2>
-                <p>Jump over lava, dodge rocks, and don't trust any floor that looks stable.</p>
+                <p class="eyebrow" data-i18n="panel.eyebrow">WELCOME TO THE TRACK</p>
+                <h2 data-i18n-html="panel.title">Ready to cross<br><span>the impossible?</span></h2>
+                <p data-i18n="panel.text">Jump over lava, dodge rocks, and don't trust any floor that looks stable.</p>
                 <div class="stats-row">
-                    <div><strong>01</strong><small>Track</small></div>
-                    <div><strong>∞</strong><small>Attempts</small></div>
-                    <div><strong>100%</strong><small>Courage</small></div>
+                    <div><strong>01</strong><small data-i18n="stats.track">Track</small></div>
+                    <div><strong>∞</strong><small data-i18n="stats.attempts">Attempts</small></div>
+                    <div><strong>100%</strong><small data-i18n="stats.courage">Courage</small></div>
                 </div>
-                <button id="play-button" class="primary-button">Start running <span>→</span></button>
-                <div class="controls-hint"><span>← ↑ ↓ →</span> or <span>W A S D</span> to move</div>
+                <button id="play-button" class="primary-button" data-i18n="panel.start">Start running <span>→</span></button>
+                <div class="controls-hint" data-i18n-html="controls.hint"><span>← ↑ ↓ →</span> or <span>W A S D</span> to move</div>
             </div>
             <div class="home-preview">
-                <div class="preview-label">MISSION 01</div>
+                <div class="preview-label" data-i18n="preview.mission">MISSION 01</div>
                 <div class="preview-track"><i></i><i></i><i></i><i></i><b></b></div>
-                <div class="preview-caption"><span>START</span><span>FINISH</span></div>
+                <div class="preview-caption"><span data-i18n="preview.start">START</span><span data-i18n="preview.finish">FINISH</span></div>
             </div>
         </section>
 
         <section id="game-screen" class="screen game-screen hidden">
             <div class="game-hud">
                 <button class="mute-button" type="button" aria-label="Mute music">🔊</button>
-                <div><span class="hud-label">Distance</span><strong id="distance-value">0%</strong></div>
+                <div><span class="hud-label" data-i18n="hud.distance">Distance</span><strong id="distance-value">0%</strong></div>
                 <div class="progress-track">
                     <div id="progress-bar"></div>
                 </div>
-                <div><span class="hud-label">Coins</span><strong id="level-coins">0</strong></div>
-                <div><span class="hud-label">Best</span><strong id="level-best">0%</strong></div>
-                <div class="jump-charge-meter"><span class="hud-label">Jump power</span><div class="jump-charge-track"><div id="jump-charge-bar"></div></div></div>
-                <div class="attempt-counter">Attempt <strong id="attempt-value">01</strong></div>
+                <div><span class="hud-label" data-i18n="hud.coins">Coins</span><strong id="level-coins">0</strong></div>
+                <div><span class="hud-label" data-i18n="hud.best">Best</span><strong id="level-best">0%</strong></div>
+                <div class="jump-charge-meter"><span class="hud-label" data-i18n="hud.jumpPower">Jump power</span><div class="jump-charge-track"><div id="jump-charge-bar"></div></div></div>
+                <div class="attempt-counter" data-i18n="hud.attempt">Attempt <strong id="attempt-value">01</strong></div>
             </div>
-            <div class="canvas-wrap"><canvas id="game-canvas" aria-label="Finish Line game"></canvas>
-                <div class="game-message hidden" id="game-message"><span id="message-kicker">You reached the other side</span><strong
-                        id="message-title">That was close.</strong><button id="restart-button" class="primary-button">Run
+            <div class="canvas-wrap"><canvas id="game-canvas" aria-label="Finish Line game" data-i18n-aria="game.aria"></canvas>
+                <div class="game-message hidden" id="game-message"><span id="message-kicker" data-i18n="msg.kicker">You reached the other side</span><strong
+                        id="message-title" data-i18n="msg.title">That was close.</strong><button id="restart-button" class="primary-button" data-i18n="msg.restart">Run
                         again <span>↻</span></button></div>
             </div>
-            <div class="game-footer"><span><b class="key">A</b><b class="key">D</b> Left / Right</span><span><b
-                        class="key">W</b><b class="key">S</b> Forward / Back</span><span><b class="key">SPACE</b> Jump</span><button id="home-button" class="text-button">Back
+            <div class="game-footer"><span data-i18n="footer.sides"><b class="key">A</b><b class="key">D</b> Left / Right</span><span data-i18n="footer.forward"><b
+                        class="key">W</b><b class="key">S</b> Forward / Back</span><span data-i18n="footer.jump"><b class="key">SPACE</b> Jump</span><button id="home-button" class="text-button" data-i18n="footer.home">Back
                         to home</button></div>
             <div class="touch-controls">
-                <div class="joystick" aria-label="Movement joystick">
+                <div class="joystick" aria-label="Movement joystick" data-i18n-aria="touch.joystick">
                     <div class="joystick-knob"></div>
                 </div>
-                <button data-key="Space" class="jump" aria-label="Jump">↑</button>
+                <button data-key="Space" class="jump" aria-label="Jump" data-i18n-aria="footer.jump">↑</button>
             </div>
         </section>
     </main>

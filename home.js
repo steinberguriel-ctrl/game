@@ -1,6 +1,7 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js';
 import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/loaders/GLTFLoader.js';
 import { isMuted, playCoin, startMusic, toggleMute } from './audio.js';
+import { applyTranslations, initSettings, onLanguageChange, t } from './i18n.js';
 
 const loader = new GLTFLoader();
 const views = [...document.querySelectorAll('.view')];
@@ -30,7 +31,7 @@ function isStageComplete(stage) {
 function updateMuteButton(button) {
     const muted = isMuted();
     button.textContent = muted ? '🔇' : '🔊';
-    button.setAttribute('aria-label', muted ? 'Unmute music' : 'Mute music');
+    button.setAttribute('aria-label', muted ? t('audio.unmute') : t('audio.mute'));
 }
 
 function updateStageState() {
@@ -44,13 +45,13 @@ function updateStageState() {
         card.type = 'button';
         card.dataset.stage = String(stage);
         card.className = `stage-card ${complete ? 'completed' : unlocked ? 'next' : 'locked'}`;
-        card.innerHTML = `<span>${String(stage).padStart(2, '0')}</span><b>${stageName(stage)}</b><small>${complete ? 'Completed ✓' : unlocked ? 'Ready to play' : 'Locked'}</small>`;
+        card.innerHTML = `<span>${String(stage).padStart(2, '0')}</span><b>${stageName(stage)}</b><small>${complete ? t('stage.completed') : unlocked ? t('stage.ready') : t('stage.locked')}</small>`;
         track.appendChild(card);
     }
     const complete = isStageComplete(1);
     const statusCopy = document.querySelector('#stage-status-copy');
     const statusMark = document.querySelector('#stage-status-mark');
-    statusCopy.textContent = firstOpen === 1 ? 'The first stage is ready' : `Stage ${firstOpen} is ready`;
+    statusCopy.textContent = firstOpen === 1 ? t('home.firstStageReady') : t('stage.readyN', { n: firstOpen });
     statusMark.textContent = firstOpen === TOTAL_STAGES && isStageComplete(TOTAL_STAGES) ? '✓' : '→';
     track.querySelectorAll('.stage-card').forEach(card => card.addEventListener('click', () => {
         if (card.classList.contains('locked')) return;
@@ -60,10 +61,8 @@ function updateStageState() {
 }
 
 function stageName(stage) {
-    if (stage === 1) return 'Survival';
-    if (stage === 2) return 'Sky City';
-    if (stage === 3) return 'Crystal Cave';
-    return `Track ${String(stage).padStart(2, '0')}`;
+    if (stage <= 3) return t(`stage.${stage}.name`);
+    return t('stage.generic', { n: String(stage).padStart(2, '0') });
 }
 
 function showView(id) {
@@ -103,7 +102,7 @@ updateMuteButton(muteButton);
 muteButton.addEventListener('click', () => { toggleMute(); updateMuteButton(muteButton); });
 
 function updateCoinTotal() {
-    coinTotal.textContent = `${rewardTotal} coins`;
+    coinTotal.textContent = t('coins.total', { n: rewardTotal });
     coinTotalHeader.textContent = rewardTotal;
 }
 
@@ -112,12 +111,22 @@ function closeReward() {
     document.querySelector('.coin-reward-box').classList.remove('reward-done');
 }
 
+let rewardLastAmount = 0;
+let rewardOpened = false;
+
+function renderReward() {
+    rewardValue.textContent = t('reward.got', { amount: rewardLastAmount });
+    if (rewardOpeningsLeft > 0) rewardProgress.textContent = t('reward.left', { n: rewardOpeningsLeft });
+    else rewardProgress.textContent = rewardOpened ? t('reward.empty') : t('reward.click');
+    collectRewardButton.textContent = rewardOpened && rewardOpeningsLeft < 1 ? t('reward.collected') : t('reward.collect');
+}
+
 function openCoinBag() {
     rewardOpeningsLeft = 2 + Math.floor(Math.random() * 4);
-    rewardValue.textContent = 'You got: 0';
-    rewardProgress.textContent = `${rewardOpeningsLeft} openings left`;
+    rewardLastAmount = 0;
+    rewardOpened = true;
     collectRewardButton.disabled = false;
-    collectRewardButton.textContent = 'Collect coins';
+    renderReward();
     coinRewardModal.hidden = false;
 }
 
@@ -129,13 +138,10 @@ function collectCoins() {
     rewardOpeningsLeft -= 1;
     localStorage.setItem(COINS_STORAGE_KEY, String(rewardTotal));
     updateCoinTotal();
-    rewardValue.textContent = `You got: ${amount}`;
-    if (rewardOpeningsLeft) {
-        rewardProgress.textContent = `${rewardOpeningsLeft} openings left`;
-    } else {
-        rewardProgress.textContent = 'The bag is empty. Come back after the next track.';
+    rewardLastAmount = amount;
+    renderReward();
+    if (!rewardOpeningsLeft) {
         collectRewardButton.disabled = true;
-        collectRewardButton.textContent = 'Collected';
         document.querySelector('.coin-reward-box').classList.add('reward-done');
     }
 }
@@ -202,3 +208,6 @@ function makeModelViewer(container, scale = 1.55) {
 }
 
 makeModelViewer(document.querySelector('#hero-model'), 1.35);
+applyTranslations();
+initSettings();
+onLanguageChange(() => { updateStageState(); updateMuteButton(muteButton); updateCoinTotal(); renderReward(); });

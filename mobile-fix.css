@@ -80,7 +80,7 @@
         height: 52px;
         border: 1px solid rgba(245, 240, 232, .7);
         border-radius: 12px;
-        background: rgba(23, 42, 42, .58);
+        background: rgba(23, 42, 42, .26);
         color: var(--cream);
         font-size: 24px;
         touch-action: none;
@@ -92,9 +92,9 @@
         position: relative;
         width: 112px;
         height: 112px;
-        border: 2px solid rgba(245, 240, 232, .7);
+        border: 2px solid rgba(245, 240, 232, .38);
         border-radius: 50%;
-        background: rgba(23, 42, 42, .48);
+        background: rgba(23, 42, 42, .22);
         touch-action: none;
         pointer-events: auto;
         -webkit-tap-highlight-color: transparent;
@@ -104,7 +104,7 @@
         content: '';
         position: absolute;
         inset: 14px;
-        border: 1px solid rgba(245, 240, 232, .28);
+        border: 1px solid rgba(245, 240, 232, .16);
         border-radius: 50%;
     }
 
@@ -114,16 +114,16 @@
         top: 50%;
         width: 52px;
         height: 52px;
-        border: 2px solid rgba(245, 240, 232, .9);
+        border: 2px solid rgba(245, 240, 232, .52);
         border-radius: 50%;
-        background: rgba(112, 198, 189, .9);
+        background: rgba(112, 198, 189, .48);
         box-shadow: 0 3px 8px rgba(0, 0, 0, .3);
         transform: translate(-50%, -50%);
         pointer-events: none;
     }
 
     .game-screen .touch-controls .jump {
-        background: rgba(255, 200, 87, .85);
+        background: rgba(255, 200, 87, .5);
         color: var(--ink);
     }
 }

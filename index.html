@@ -1,0 +1,97 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>קו הסיום</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Heebo:wght@400;500;700;800;900&family=Space+Grotesk:wght@500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="style.css" />
+    <link rel="stylesheet" href="mobile-fix.css" />
+</head>
+
+<body>
+    <main class="app-shell">
+        <header class="topbar">
+            <div class="brand-mark"><span class="brand-dot"></span><span>קו הסיום</span></div>
+            <div class="topbar-status"><span class="status-light"></span><span id="topbar-copy">מסלול 01 · חם
+                    מאוד</span></div>
+        </header>
+
+        <section id="intro-screen" class="screen intro-screen">
+            <div class="intro-copy">
+                <p class="eyebrow">RUN / ESCAPE / REPEAT</p>
+                <h1>צעד אחד.<br><em>עוד צעד.</em><br>עד לקצה.</h1>
+                <p class="intro-text">העולם מתפרק מתחת לרגליים. תישאר בתנועה, תמצא את הקצב שלך, ותגיע לצד השני לפני
+                    שהלבה תגיע אליך.</p>
+                <button id="trial-button" class="primary-button">ניסיון ראשון <span>→</span></button>
+            </div>
+            <div class="intro-art" aria-hidden="true">
+                <div class="sun"></div>
+                <div class="mountain mountain-back"></div>
+                <div class="mountain mountain-front"></div>
+                <div class="art-character"><span class="head"></span><span class="body"></span><span
+                        class="leg left"></span><span class="leg right"></span></div>
+                <div class="art-lava"></div>
+            </div>
+        </section>
+
+        <section id="home-screen" class="screen home-screen hidden">
+            <div class="home-panel">
+                <p class="eyebrow">ברוך הבא למסלול</p>
+                <h2>מוכן לחצות<br><span>את הבלתי אפשרי?</span></h2>
+                <p>קפוץ מעל לבה, התחמק מסלעים, ואל תסמוך על שום רצפה שנראית יציבה.</p>
+                <div class="stats-row">
+                    <div><strong>01</strong><small>מסלול</small></div>
+                    <div><strong>∞</strong><small>ניסיונות</small></div>
+                    <div><strong>100%</strong><small>אומץ</small></div>
+                </div>
+                <button id="play-button" class="primary-button">התחל לרוץ <span>→</span></button>
+                <div class="controls-hint"><span>← ↑ ↓ →</span> או <span>W A S D</span> לתנועה</div>
+            </div>
+            <div class="home-preview">
+                <div class="preview-label">MISSION 01</div>
+                <div class="preview-track"><i></i><i></i><i></i><i></i><b></b></div>
+                <div class="preview-caption"><span>START</span><span>FINISH</span></div>
+            </div>
+        </section>
+
+        <section id="game-screen" class="screen game-screen hidden">
+            <div class="game-hud">
+                <button class="mute-button" type="button" aria-label="השתקת מנגינה">🔊</button>
+                <div><span class="hud-label">מרחק</span><strong id="distance-value">0%</strong></div>
+                <div class="progress-track">
+                    <div id="progress-bar"></div>
+                </div>
+                <div><span class="hud-label">מטבעות</span><strong id="level-coins">0</strong></div>
+                <div><span class="hud-label">שיא</span><strong id="level-best">0%</strong></div>
+                <div class="jump-charge-meter"><span class="hud-label">עוצמת קפיצה</span><div class="jump-charge-track"><div id="jump-charge-bar"></div></div></div>
+                <div class="attempt-counter">ניסיון <strong id="attempt-value">01</strong></div>
+            </div>
+            <div class="canvas-wrap"><canvas id="game-canvas" aria-label="משחק קו הסיום"></canvas>
+                <div class="game-message hidden" id="game-message"><span id="message-kicker">הגעת לצד השני</span><strong
+                        id="message-title">זה היה קרוב.</strong><button id="restart-button" class="primary-button">רוץ
+                        שוב <span>↻</span></button></div>
+            </div>
+            <div class="game-footer"><span><b class="key">A</b><b class="key">D</b> צדדים</span><span><b
+                        class="key">W</b><b class="key">S</b> קדימה / אחורה</span><span><b class="key">SPACE</b> קפיצה</span><button id="home-button" class="text-button">חזרה
+                        לבית</button></div>
+            <div class="touch-controls"><button data-key="ArrowLeft">←</button><button
+                    data-key="ArrowRight">→</button><button data-key="Space" class="jump">↑</button></div>
+        </section>
+    </main>
+    <script type="importmap">
+            {
+                "imports": {
+                    "three": "https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js"
+                }
+            }
+        </script>
+    <script type="module" src="game.js"></script>
+</body>
+
+</html>

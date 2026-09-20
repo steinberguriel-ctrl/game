@@ -1,14 +1,58 @@
 @media (max-width: 760px) {
+    .game-screen {
+        overflow: hidden;
+        min-height: 100dvh;
+        height: 100dvh;
+    }
+
     .game-screen .canvas-wrap {
         width: 100vw;
-        height: 100vh;
+        height: 100dvh;
         flex: none;
+    }
+
+    .game-screen .game-hud {
+        top: max(8px, env(safe-area-inset-top));
+        left: 8px;
+        width: calc(100vw - 16px);
+        transform: none;
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 4px 6px;
+        padding: 6px 48px 6px 7px;
+        pointer-events: none;
+    }
+
+    .game-screen .game-hud > div {
+        min-width: 0;
+    }
+
+    .game-screen .game-hud .progress-track {
+        grid-column: 1 / -1;
+        grid-row: 2;
+        width: 100%;
+        height: 4px;
+    }
+
+    .game-screen .game-hud .jump-charge-meter {
+        grid-column: 1 / -1;
+        grid-row: 3;
+        min-width: 0;
+    }
+
+    .game-screen .jump-charge-track {
+        width: 100%;
+        height: 5px;
+    }
+
+    .game-screen .game-hud strong {
+        font-size: 16px;
     }
 
     .game-screen .game-hud .mute-button {
         position: fixed;
-        top: 10px;
-        right: 10px;
+        top: max(10px, env(safe-area-inset-top));
+        right: max(10px, env(safe-area-inset-right));
         left: auto;
         width: 38px;
         height: 38px;
@@ -17,5 +61,69 @@
         display: grid;
         place-items: center;
         opacity: .95;
+    }
+
+    .game-screen .touch-controls {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: max(14px, env(safe-area-inset-bottom));
+        z-index: 25;
+        display: flex;
+        justify-content: center;
+        gap: 12px;
+        pointer-events: none;
+    }
+
+    .game-screen .touch-controls button {
+        width: 64px;
+        height: 52px;
+        border: 1px solid rgba(245, 240, 232, .7);
+        border-radius: 12px;
+        background: rgba(23, 42, 42, .58);
+        color: var(--cream);
+        font-size: 24px;
+        touch-action: none;
+        pointer-events: auto;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .game-screen .joystick {
+        position: relative;
+        width: 112px;
+        height: 112px;
+        border: 2px solid rgba(245, 240, 232, .7);
+        border-radius: 50%;
+        background: rgba(23, 42, 42, .48);
+        touch-action: none;
+        pointer-events: auto;
+        -webkit-tap-highlight-color: transparent;
+    }
+
+    .game-screen .joystick::before {
+        content: '';
+        position: absolute;
+        inset: 14px;
+        border: 1px solid rgba(245, 240, 232, .28);
+        border-radius: 50%;
+    }
+
+    .game-screen .joystick-knob {
+        position: absolute;
+        left: 50%;
+        top: 50%;
+        width: 52px;
+        height: 52px;
+        border: 2px solid rgba(245, 240, 232, .9);
+        border-radius: 50%;
+        background: rgba(112, 198, 189, .9);
+        box-shadow: 0 3px 8px rgba(0, 0, 0, .3);
+        transform: translate(-50%, -50%);
+        pointer-events: none;
+    }
+
+    .game-screen .touch-controls .jump {
+        background: rgba(255, 200, 87, .85);
+        color: var(--ink);
     }
 }

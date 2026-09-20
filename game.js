@@ -37,7 +37,52 @@ document.querySelector('#restart-button').addEventListener('click', startGame);
 document.querySelector('#home-button').addEventListener('click', () => { cancelAnimationFrame(animationFrame); showScreen('home'); });
 window.addEventListener('keydown', event => { if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Space', 'KeyA', 'KeyD', 'KeyW', 'KeyS'].includes(event.code)) { event.preventDefault(); keys.add(event.code); } });
 window.addEventListener('keyup', event => keys.delete(event.code));
-document.querySelectorAll('.touch-controls button').forEach(button => { const key = button.dataset.key; button.addEventListener('pointerdown', () => keys.add(key));['pointerup', 'pointerleave', 'pointercancel'].forEach(type => button.addEventListener(type, () => keys.delete(key))); });
+document.querySelectorAll('.touch-controls button').forEach(button => {
+    const key = button.dataset.key;
+    const release = () => keys.delete(key);
+    button.addEventListener('pointerdown', event => {
+        event.preventDefault();
+        button.setPointerCapture?.(event.pointerId);
+        keys.add(key);
+    });
+    ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(type => button.addEventListener(type, release));
+});
+const joystick = document.querySelector('.joystick');
+const joystickKnob = document.querySelector('.joystick-knob');
+const joystickKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
+function resetJoystick() {
+    joystickKeys.forEach(key => keys.delete(key));
+    joystickKnob.style.transform = 'translate(-50%, -50%)';
+}
+function updateJoystick(event) {
+    const rect = joystick.getBoundingClientRect();
+    const radius = rect.width * .5;
+    const knobRadius = joystickKnob.offsetWidth * .5;
+    let dx = event.clientX - (rect.left + radius);
+    let dy = event.clientY - (rect.top + radius);
+    const maxDistance = radius - knobRadius;
+    const distance = Math.hypot(dx, dy);
+    if (distance > maxDistance) {
+        dx = dx / distance * maxDistance;
+        dy = dy / distance * maxDistance;
+    }
+    joystickKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+    joystickKeys.forEach(key => keys.delete(key));
+    const deadZone = maxDistance * .22;
+    if (Math.abs(dx) > deadZone) keys.add(dx < 0 ? 'ArrowLeft' : 'ArrowRight');
+    if (Math.abs(dy) > deadZone) keys.add(dy < 0 ? 'ArrowUp' : 'ArrowDown');
+}
+if (joystick) {
+    joystick.addEventListener('pointerdown', event => {
+        event.preventDefault();
+        joystick.setPointerCapture?.(event.pointerId);
+        updateJoystick(event);
+    });
+    joystick.addEventListener('pointermove', event => {
+        if (joystick.hasPointerCapture?.(event.pointerId)) updateJoystick(event);
+    });
+    ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(type => joystick.addEventListener(type, resetJoystick));
+}
 const muteButton = document.querySelector('.mute-button');
 function updateMuteButton() { const muted = isMuted(); muteButton.textContent = muted ? '🔇' : '🔊'; muteButton.setAttribute('aria-label', muted ? 'הפעלת מנגינה' : 'השתקת מנגינה'); }
 updateMuteButton();

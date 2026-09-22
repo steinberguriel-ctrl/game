@@ -16,6 +16,94 @@ const rewardProgress = document.querySelector('#reward-progress');
 const coinTotal = document.querySelector('#coin-total');
 const coinTotalHeader = document.querySelector('#coin-total-header');
 const COINS_STORAGE_KEY = 'finish-line.coins';
+const SKIN_STORAGE_KEY = 'finish-line.selected-skin';
+const OWNED_SKINS_KEY = 'finish-line.owned-skins';
+const SKIN_FILE_STORAGE_KEY = 'finish-line.selected-skin-file';
+const SKINS = [
+    { id: 'default', file: 'boy.glb', price: 0, nameKey: 'skin.default.name' },
+    { id: 'shoo', file: 'boyshoo.glb', price: 150, nameKey: 'skin.shoo.name' },
+    { id: 'pants', file: 'boypants.glb', price: 200, nameKey: 'skin.pants.name' },
+    { id: 'colors', file: 'boycolers.glb', price: 250, nameKey: 'skin.colors.name' },
+    { id: 'colorAll', file: 'boycolerAll.glb', price: 350, nameKey: 'skin.colorAll.name' },
+];
+const skinsList = document.querySelector('#skins-list');
+
+function getOwnedSkins() {
+    try {
+        const stored = JSON.parse(localStorage.getItem(OWNED_SKINS_KEY) || '[]');
+        return Array.isArray(stored) ? stored : [];
+    } catch {
+        return [];
+    }
+}
+
+function getSelectedSkin() {
+    const id = localStorage.getItem(SKIN_STORAGE_KEY) || 'default';
+    return SKINS.find(skin => skin.id === id) || SKINS[0];
+}
+
+function renderSkins() {
+    if (!skinsList) return;
+    const owned = new Set(['default', ...getOwnedSkins()]);
+    const selectedId = getSelectedSkin().id;
+    skinsList.innerHTML = '';
+    SKINS.forEach(skin => {
+        const isOwned = owned.has(skin.id);
+        const isSelected = skin.id === selectedId;
+        const card = document.createElement('div');
+        card.className = `skin-card${isOwned ? '' : ' locked'}`;
+        const icon = document.createElement('div');
+        icon.className = 'skin-icon';
+        icon.textContent = '◆';
+        const info = document.createElement('div');
+        info.className = 'skin-info';
+        const name = document.createElement('b');
+        name.textContent = t(skin.nameKey);
+        const status = document.createElement('span');
+        status.textContent = isOwned ? (isSelected ? t('skins.equipped') : t('skins.owned')) : t('skins.priceCoins', { n: skin.price });
+        info.append(name, status);
+        const action = document.createElement('button');
+        action.type = 'button';
+        action.className = 'skin-action';
+        if (isSelected) {
+            action.classList.add('selected');
+            action.textContent = t('skins.equipped');
+            action.disabled = true;
+        } else if (isOwned) {
+            action.textContent = t('skins.equip');
+            action.addEventListener('click', () => { selectSkin(skin.id); });
+        } else {
+            action.textContent = t('skins.buy');
+            action.disabled = rewardTotal < skin.price;
+            action.addEventListener('click', () => { buySkin(skin); });
+        }
+        card.append(icon, info, action);
+        skinsList.appendChild(card);
+    });
+}
+
+function buySkin(skin) {
+    if (rewardTotal < skin.price) return;
+    rewardTotal -= skin.price;
+    localStorage.setItem(COINS_STORAGE_KEY, String(rewardTotal));
+    const owned = getOwnedSkins();
+    owned.push(skin.id);
+    localStorage.setItem(OWNED_SKINS_KEY, JSON.stringify(owned));
+    localStorage.setItem(SKIN_STORAGE_KEY, skin.id);
+    localStorage.setItem(SKIN_FILE_STORAGE_KEY, skin.file);
+    updateCoinTotal();
+    renderSkins();
+    refreshHeroModel();
+}
+
+function selectSkin(id) {
+    localStorage.setItem(SKIN_STORAGE_KEY, id);
+    const skin = SKINS.find(item => item.id === id);
+    if (skin) localStorage.setItem(SKIN_FILE_STORAGE_KEY, skin.file);
+    renderSkins();
+    refreshHeroModel();
+}
+
 let rewardOpeningsLeft = 0;
 let rewardTotal = Number(localStorage.getItem(COINS_STORAGE_KEY)) || 0;
 const SELECTED_STAGE_KEY = 'finish-line.selected-stage';
@@ -71,7 +159,7 @@ function showView(id) {
 }
 navItems.forEach(item => item.addEventListener('click', () => { if (item.dataset.screen) showView(item.dataset.screen); }));
 async function startNextStage() {
-    startMusic();
+    startMusic('home');
     localStorage.setItem(SELECTED_STAGE_KEY, localStorage.getItem(SELECTED_STAGE_KEY) || '1');
     localStorage.setItem('finish-line.skip-intro', 'true');
     const response = await fetch('index.html');
@@ -140,6 +228,7 @@ function collectCoins() {
     updateCoinTotal();
     rewardLastAmount = amount;
     renderReward();
+    renderSkins();
     if (!rewardOpeningsLeft) {
         collectRewardButton.disabled = true;
         document.querySelector('.coin-reward-box').classList.add('reward-done');
@@ -151,6 +240,12 @@ collectRewardButton.addEventListener('click', collectCoins);
 closeRewardButton.addEventListener('click', closeReward);
 coinRewardModal.addEventListener('click', event => { if (event.target === coinRewardModal) closeReward(); });
 updateCoinTotal();
+
+let heroViewer = null;
+
+function refreshHeroModel() {
+    heroViewer?.setSkin(getSelectedSkin().file);
+}
 
 function makeModelViewer(container, scale = 1.55) {
     const scene = new THREE.Scene();
@@ -167,34 +262,45 @@ function makeModelViewer(container, scale = 1.55) {
     camera.position.set(0, 1.35, 6);
     camera.lookAt(0, 1.15, 0);
 
-    loader.load('./boy.glb', gltf => {
-        const model = gltf.scene;
-        model.scale.setScalar(scale);
-        model.position.y = -.65;
-        model.traverse(node => { if (node.isMesh) node.castShadow = true; });
-        scene.add(model);
-        const mixer = gltf.animations.length ? new THREE.AnimationMixer(model) : null;
-        if (mixer) mixer.clipAction(gltf.animations[0]).play();
-        const clock = new THREE.Clock();
-        const animate = () => {
-            const delta = clock.getDelta();
-            if (mixer) mixer.update(delta);
-            model.rotation.y += delta * .35;
-            renderer.render(scene, camera);
-            requestAnimationFrame(animate);
-        };
-        animate();
-    }, undefined, () => {
-        const fallback = new THREE.Group();
-        const material = new THREE.MeshStandardMaterial({ color: '#172a2a' });
-        const head = new THREE.Mesh(new THREE.SphereGeometry(.48, 20, 16), material);
-        head.position.y = 1.4;
-        const body = new THREE.Mesh(new THREE.CapsuleGeometry(.35, 1.1, 8, 16), material);
-        body.position.y = .45;
-        fallback.add(head, body);
-        scene.add(fallback);
+    let currentModel = null;
+    let mixer = null;
+    const clock = new THREE.Clock();
+
+    function loadModel(file) {
+        loader.load(`./${file}`, gltf => {
+            if (currentModel) scene.remove(currentModel);
+            const model = gltf.scene;
+            model.scale.setScalar(scale);
+            model.position.y = -.65;
+            model.traverse(node => { if (node.isMesh) node.castShadow = true; });
+            scene.add(model);
+            currentModel = model;
+            mixer = gltf.animations.length ? new THREE.AnimationMixer(model) : null;
+            if (mixer) mixer.clipAction(gltf.animations[0]).play();
+        }, undefined, () => {
+            if (currentModel) scene.remove(currentModel);
+            const fallback = new THREE.Group();
+            const material = new THREE.MeshStandardMaterial({ color: '#172a2a' });
+            const head = new THREE.Mesh(new THREE.SphereGeometry(.48, 20, 16), material);
+            head.position.y = 1.4;
+            const body = new THREE.Mesh(new THREE.CapsuleGeometry(.35, 1.1, 8, 16), material);
+            body.position.y = .45;
+            fallback.add(head, body);
+            scene.add(fallback);
+            currentModel = fallback;
+            mixer = null;
+        });
+    }
+
+    const animate = () => {
+        const delta = clock.getDelta();
+        if (mixer) mixer.update(delta);
+        if (currentModel) currentModel.rotation.y += delta * .35;
         renderer.render(scene, camera);
-    });
+        requestAnimationFrame(animate);
+    };
+    animate();
+    loadModel(getSelectedSkin().file);
 
     const resize = () => {
         const width = Math.max(1, container.clientWidth);
@@ -205,9 +311,13 @@ function makeModelViewer(container, scale = 1.55) {
     };
     resize();
     window.addEventListener('resize', resize);
+
+    return { setSkin: loadModel };
 }
 
-makeModelViewer(document.querySelector('#hero-model'), 1.35);
+heroViewer = makeModelViewer(document.querySelector('#hero-model'), 1.35);
+startMusic('home');
 applyTranslations();
 initSettings();
-onLanguageChange(() => { updateStageState(); updateMuteButton(muteButton); updateCoinTotal(); renderReward(); });
+renderSkins();
+onLanguageChange(() => { updateStageState(); updateMuteButton(muteButton); updateCoinTotal(); renderReward(); renderSkins(); });

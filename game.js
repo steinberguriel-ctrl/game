@@ -1,6 +1,6 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js';
 import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/loaders/GLTFLoader.js';
-import { isMuted, playCoin, playJump, playLose, playWin, startMusic, toggleMute } from './audio.js';
+import { isMuted, playCoin, playCrash, playExplosion, playJump, playWin, startLevelMusic, startMusic, toggleMute } from './audio.js';
 import { applyTranslations, initSettings, onLanguageChange, t } from './i18n.js';
 
 const screens = { intro: document.querySelector('#intro-screen'), home: document.querySelector('#home-screen'), game: document.querySelector('#game-screen') };
@@ -29,11 +29,11 @@ async function loadHomePage() {
     await import(`./home.js?home=${Date.now()}`);
 }
 document.querySelector('#trial-button').addEventListener('click', async () => {
-    startMusic();
+    startMusic('home');
     localStorage.setItem('finish-line.selected-stage', '1');
     await loadHomePage();
 });
-document.querySelector('#play-button').addEventListener('click', () => { startMusic(); showScreen('game'); });
+document.querySelector('#play-button').addEventListener('click', () => { showScreen('game'); });
 document.querySelector('#restart-button').addEventListener('click', startGame);
 document.querySelector('#home-button').addEventListener('click', () => { cancelAnimationFrame(animationFrame); showScreen('home'); });
 window.addEventListener('keydown', event => { if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Space', 'KeyA', 'KeyD', 'KeyW', 'KeyS'].includes(event.code)) { event.preventDefault(); keys.add(event.code); } });
@@ -380,9 +380,10 @@ function buildWorld() {
     const flag = new THREE.Group(); flag.add(box(.12, 5, .12, layout.goal + 2, 1.3, 0, world.accent)); flag.add(box(3, 1.4, .12, layout.goal + 3.4, 3.1, 0, world.accent)); scene.add(flag);
     loadCharacter();
 }
-function loadCharacter() { new GLTFLoader().load('./boy.glb', gltf => { player = gltf.scene; player.scale.setScalar(1.55); player.rotation.y = Math.PI / 2; player.traverse(node => { if (node.isMesh) { node.castShadow = true; node.receiveShadow = true; } }); player.position.set(0, -.2, 0); scene.add(player); if (gltf.animations.length) { playerMixer = new THREE.AnimationMixer(player); gltf.animations.forEach(clip => { playerActions[clip.name.toLowerCase()] = playerMixer.clipAction(clip); }); const idleClip = gltf.animations.find(clip => /idle|stand|rest/i.test(clip.name)) || gltf.animations[0]; activePlayerAction = playerMixer.clipAction(idleClip); activePlayerAction.play(); } }, undefined, () => { player = new THREE.Group(); player.add(new THREE.Mesh(new THREE.SphereGeometry(.55, 16, 12), makeMaterial('#172a2a'))); player.add(new THREE.Mesh(new THREE.BoxGeometry(.7, 1.4, .5), makeMaterial('#172a2a'))); player.rotation.y = Math.PI / 2; player.position.set(0, .4, 0); scene.add(player); }); }
+function getPlayerSkinFile() { return localStorage.getItem('finish-line.selected-skin-file') || 'boy.glb'; }
+function loadCharacter() { new GLTFLoader().load(`./${getPlayerSkinFile()}`, gltf => { player = gltf.scene; player.scale.setScalar(1.55); player.rotation.y = Math.PI / 2; player.traverse(node => { if (node.isMesh) { node.castShadow = true; node.receiveShadow = true; } }); player.position.set(0, -.2, 0); scene.add(player); if (gltf.animations.length) { playerMixer = new THREE.AnimationMixer(player); gltf.animations.forEach(clip => { playerActions[clip.name.toLowerCase()] = playerMixer.clipAction(clip); }); const idleClip = gltf.animations.find(clip => /idle|stand|rest/i.test(clip.name)) || gltf.animations[0]; activePlayerAction = playerMixer.clipAction(idleClip); activePlayerAction.play(); } }, undefined, () => { player = new THREE.Group(); player.add(new THREE.Mesh(new THREE.SphereGeometry(.55, 16, 12), makeMaterial('#172a2a'))); player.add(new THREE.Mesh(new THREE.BoxGeometry(.7, 1.4, .5), makeMaterial('#172a2a'))); player.rotation.y = Math.PI / 2; player.position.set(0, .4, 0); scene.add(player); }); }
 function setPlayerAnimation(moving) { if (!playerMixer) return; const actionName = Object.keys(playerActions).find(name => /walk|run|move/i.test(name)); const nextAction = moving && actionName ? playerActions[actionName] : Object.keys(playerActions).find(name => /idle|stand|rest/i.test(name)) ? playerActions[Object.keys(playerActions).find(name => /idle|stand|rest/i.test(name))] : activePlayerAction; if (!nextAction || nextAction === activePlayerAction) return; activePlayerAction?.fadeOut(.16); nextAction.reset().fadeIn(.16).play(); activePlayerAction = nextAction; }
-function startGame() { cancelAnimationFrame(animationFrame); createRenderer(); message.classList.add('hidden'); const level = Number(localStorage.getItem('finish-line.selected-stage')) || 1; updateTopbar(level); document.querySelector('#attempt-value').textContent = String(attempt).padStart(2, '0'); playerMixer = null; playerActions = {}; activePlayerAction = null; gameState = { x: 0, y: 3.95, z: 0, vx: 0, vy: 0, vz: 0, grounded: true, jumpLock: false, jumpCharging: false, jumpChargeTime: 0, over: false, rocks: [], platforms: [], coins: [], movingObstacles: [], rotatingWalls: [], enemies: [], slowZones: [], clouds: [], blinkers: [], collectedCoins: 0, goal: 119, level }; document.querySelector('#level-coins').textContent = '0'; document.querySelector('#level-best').textContent = `${Number(localStorage.getItem(`finish-line.best.${level}`)) || 0}%`; document.querySelector('#jump-charge-bar').style.width = '0%'; buildWorld(); clock = new THREE.Clock(); resize(); animationFrame = requestAnimationFrame(loop); }
+function startGame() { cancelAnimationFrame(animationFrame); createRenderer(); message.classList.add('hidden'); const level = Number(localStorage.getItem('finish-line.selected-stage')) || 1; updateTopbar(level); startLevelMusic(level); document.querySelector('#attempt-value').textContent = String(attempt).padStart(2, '0'); playerMixer = null; playerActions = {}; activePlayerAction = null; gameState = { x: 0, y: 3.95, z: 0, vx: 0, vy: 0, vz: 0, grounded: true, jumpLock: false, jumpCharging: false, jumpChargeTime: 0, over: false, rocks: [], platforms: [], coins: [], movingObstacles: [], rotatingWalls: [], enemies: [], slowZones: [], clouds: [], blinkers: [], collectedCoins: 0, goal: 119, level }; document.querySelector('#level-coins').textContent = '0'; document.querySelector('#level-best').textContent = `${Number(localStorage.getItem(`finish-line.best.${level}`)) || 0}%`; document.querySelector('#jump-charge-bar').style.width = '0%'; buildWorld(); clock = new THREE.Clock(); resize(); animationFrame = requestAnimationFrame(loop); }
 function resize() { const width = canvas.clientWidth, height = canvas.clientHeight; if (!width || !height) return; renderer.setSize(width, height, false); camera.aspect = width / height; camera.updateProjectionMatrix(); }
 window.addEventListener('resize', resize);
 function loop() { const dt = Math.min(clock.getDelta(), .04); if (!gameState.over) { update(dt); if (playerMixer) playerMixer.update(dt); render(); animationFrame = requestAnimationFrame(loop); } }
@@ -408,7 +409,7 @@ function update(dt) {
     const hitMovingObstacle = gameState.movingObstacles.some(obstacle => Math.abs(obstacle.position.x - gameState.x) < 1.1 && Math.abs(obstacle.position.y - gameState.y) < 1.5 && Math.abs(obstacle.position.z - gameState.z) < 2);
     const hitWall = gameState.rotatingWalls.some(wall => Math.abs(wall.position.x - gameState.x) < 1.2 && Math.abs(wall.position.y - gameState.y) < 2 && Math.abs(wall.position.z - gameState.z) < 2.2);
     const hitEnemy = gameState.enemies.some(enemy => Math.abs(enemy.position.x - gameState.x) < 1.2 && Math.abs(enemy.position.y - gameState.y) < 1.4 && Math.abs(enemy.position.z - gameState.z) < 1.4);
-    if (gameState.y < -1 || hitRock || hitMovingObstacle || hitWall || hitEnemy) lose(); if (gameState.x >= gameState.goal) win(); if (player) { player.position.set(gameState.x, gameState.y, gameState.z); player.rotation.y = Math.PI / 2 + gameState.vx * .04; } const percent = Math.min(100, Math.max(0, Math.round((gameState.x / gameState.goal) * 100))); const bestKey = `finish-line.best.${gameState.level}`; if (percent > (Number(localStorage.getItem(bestKey)) || 0)) { localStorage.setItem(bestKey, String(percent)); document.querySelector('#level-best').textContent = `${percent}%`; } progressBar.style.width = `${percent}%`; distanceValue.textContent = `${percent}%`;     const cameraHeight = Math.max(15, gameState.y + 13); const cameraBehindOffset = 2; camera.position.x += ((gameState.x - cameraBehindOffset) - camera.position.x) * .16; camera.position.y += (cameraHeight - camera.position.y) * .12; camera.position.z += (gameState.z - camera.position.z) * .16; camera.lookAt(gameState.x + 5, Math.max(1.5, gameState.y - 1), gameState.z);
+    if (gameState.y < -1) lose(); else if (hitRock || hitMovingObstacle || hitWall || hitEnemy) lose('crash'); if (gameState.x >= gameState.goal) win(); if (player) { player.position.set(gameState.x, gameState.y, gameState.z); player.rotation.y = Math.PI / 2 + gameState.vx * .04; } const percent = Math.min(100, Math.max(0, Math.round((gameState.x / gameState.goal) * 100))); const bestKey = `finish-line.best.${gameState.level}`; if (percent > (Number(localStorage.getItem(bestKey)) || 0)) { localStorage.setItem(bestKey, String(percent)); document.querySelector('#level-best').textContent = `${percent}%`; } progressBar.style.width = `${percent}%`; distanceValue.textContent = `${percent}%`;     const cameraHeight = Math.max(15, gameState.y + 13); const cameraBehindOffset = 2; camera.position.x += ((gameState.x - cameraBehindOffset) - camera.position.x) * .16; camera.position.y += (cameraHeight - camera.position.y) * .12; camera.position.z += (gameState.z - camera.position.z) * .16; camera.lookAt(gameState.x + 5, Math.max(1.5, gameState.y - 1), gameState.z);
 }
 function spawnEmberBurst(x, y, z, count) {
     const colors = ['#ffcf5c', '#ff9a3d', '#ff5c3d', '#ff2e2e'];
@@ -485,10 +486,10 @@ function runDeathEffect(x, y, z, onDone) {
     tick();
 }
 function render() { renderer.render(scene, camera); }
-function lose() {
+function lose(cause = 'fall') {
     if (gameState.over) return;
     gameState.over = true;
-    playLose();
+    if (cause === 'crash') playCrash(); else playExplosion();
     if (player) player.visible = false;
     messageKicker.textContent = t('lose.kicker');
     messageTitle.textContent = t('lose.title');

@@ -41,7 +41,8 @@
         <nav class="home-nav" aria-label="Home screen navigation" data-i18n-aria="home.navAria"><button class="nav-item active" data-i18n="nav.home"
                 data-screen="home-view"><span>⌂</span>Home</button><button id="next-stage-button"
                 class="nav-item play-nav" type="button" data-i18n="nav.play"><span>▶</span>Play</button><button class="nav-item" data-i18n="nav.trophies"
-                data-screen="trophies-view"><span>♜</span>Trophies</button></nav>
+                data-screen="trophies-view"><span>♜</span>Trophies</button><button class="nav-item" data-i18n="nav.skins"
+                data-screen="skins-view"><span>◆</span>Skins</button></nav>
         <section id="home-view" class="view active-view">
             <div><span class="eyebrow" data-i18n="home.yourTrack">YOUR TRACK</span>
                 <h2 data-i18n="home.continue">Continue from here.</h2>
@@ -60,6 +61,12 @@
                     aria-label="Collect coins" data-i18n-aria="reward.collect"><span>●</span><span>●</span><span>●</span></button>
                 <div><b data-i18n="coinbag.title">Coin bag</b><span data-i18n="coinbag.hint">Click to get coins</span></div><strong id="coin-total">+250</strong>
             </div>
+        </section>
+        <section id="skins-view" class="view">
+            <div><span class="eyebrow" data-i18n="skins.eyebrow">RUNNER SHOP</span>
+                <h2 data-i18n="skins.title">Dress the part.</h2>
+            </div>
+            <div id="skins-list" class="skins-list"></div>
         </section>
         <div id="coin-reward-modal" class="coin-reward-modal" hidden>
             <div class="coin-reward-box"><button id="close-reward" class="close-reward"

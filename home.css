@@ -244,6 +244,114 @@
     border-radius: 0
 }
 
+.view#skins-view {
+    left: 32px;
+    right: auto;
+    transform: none;
+    width: min(560px, calc(100% - 64px));
+    border-radius: 0;
+    max-height: 62vh;
+    overflow-y: auto
+}
+
+.skins-list {
+    display: grid;
+    gap: 10px
+}
+
+.skin-card {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+    padding: 12px 14px;
+    background: rgba(20, 48, 48, .5);
+    border: 1px solid rgba(245, 240, 232, .18);
+}
+
+.skin-icon {
+    display: grid;
+    place-items: center;
+    flex: 0 0 46px;
+    width: 46px;
+    height: 46px;
+    border-radius: 10px;
+    background: rgba(255, 200, 87, .16);
+    color: var(--yellow);
+    font-size: 20px;
+    border: 1px solid rgba(245, 240, 232, .18)
+}
+
+.skin-info {
+    flex: 1;
+    min-width: 0
+}
+
+.skin-info b {
+    display: block;
+    font-size: 14px
+}
+
+.skin-info span {
+    display: block;
+    margin-top: 3px;
+    font-size: 12px;
+    color: #9bb5ad
+}
+
+.skin-action {
+    flex: 0 0 auto;
+    border: 0;
+    padding: 9px 16px;
+    font: 800 12px Heebo, sans-serif;
+    cursor: pointer;
+    color: var(--cream);
+    background: var(--coral);
+    box-shadow: 3px 3px 0 rgba(8, 25, 25, .4)
+}
+
+.skin-action:disabled {
+    cursor: default;
+    opacity: .6;
+    box-shadow: none
+}
+
+.skin-action.selected {
+    background: #70c6bd;
+    color: #172a2a
+}
+
+.skin-card.locked .skin-action {
+    background: rgba(245, 240, 232, .16);
+    color: rgba(245, 240, 232, .55)
+}
+
+@media(max-width:700px) {
+    .view#skins-view {
+        left: 50%;
+        right: auto;
+        transform: translateX(-50%);
+        width: calc(100% - 32px);
+        border-radius: 0
+    }
+
+    .skin-card {
+        padding: 10px 12px;
+        gap: 10px
+    }
+
+    .skin-icon {
+        flex-basis: 38px;
+        width: 38px;
+        height: 38px;
+        font-size: 16px
+    }
+
+    .skin-action {
+        padding: 8px 12px;
+        font-size: 11px
+    }
+}
+
 .coin-bag {
     cursor: pointer;
     transition: transform .15s, filter .15s

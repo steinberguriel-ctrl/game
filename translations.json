@@ -82,7 +82,20 @@
       "footer.forward": "Forward / Back",
       "footer.jump": "Jump",
       "footer.home": "Back to home",
-      "touch.joystick": "Movement joystick"
+      "touch.joystick": "Movement joystick",
+      "nav.skins": "Skins",
+      "skins.eyebrow": "RUNNER SHOP",
+      "skins.title": "Dress the part.",
+      "skins.buy": "Buy",
+      "skins.equip": "Equip",
+      "skins.equipped": "Equipped",
+      "skins.owned": "Owned",
+      "skins.priceCoins": "{n} coins",
+      "skin.default.name": "Classic Runner",
+      "skin.shoo.name": "Sprint Shoes",
+      "skin.pants.name": "Trail Pants",
+      "skin.colors.name": "Color Pop",
+      "skin.colorAll.name": "Full Color"
     },
     "es": {
       "app.title": "Línea de Meta",
@@ -159,7 +172,20 @@
       "footer.forward": "Adelante / Atrás",
       "footer.jump": "Salto",
       "footer.home": "Volver al inicio",
-      "touch.joystick": "Joystick de movimiento"
+      "touch.joystick": "Joystick de movimiento",
+      "nav.skins": "Skins",
+      "skins.eyebrow": "TIENDA DEL CORREDOR",
+      "skins.title": "Vístete para el reto.",
+      "skins.buy": "Comprar",
+      "skins.equip": "Equipar",
+      "skins.equipped": "Equipado",
+      "skins.owned": "En tu poder",
+      "skins.priceCoins": "{n} monedas",
+      "skin.default.name": "Corredor clásico",
+      "skin.shoo.name": "Zapatillas de sprint",
+      "skin.pants.name": "Pantalón de sendero",
+      "skin.colors.name": "Toque de color",
+      "skin.colorAll.name": "Multicolor total"
     },
     "pt": {
       "app.title": "Linha de Chegada",
@@ -236,7 +262,20 @@
       "footer.forward": "Frente / Trás",
       "footer.jump": "Pulo",
       "footer.home": "Voltar ao início",
-      "touch.joystick": "Joystick de movimento"
+      "touch.joystick": "Joystick de movimento",
+      "nav.skins": "Skins",
+      "skins.eyebrow": "LOJA DO CORREDOR",
+      "skins.title": "Vista-se para o desafio.",
+      "skins.buy": "Comprar",
+      "skins.equip": "Equipar",
+      "skins.equipped": "Equipado",
+      "skins.owned": "Adquirido",
+      "skins.priceCoins": "{n} moedas",
+      "skin.default.name": "Corredor clássico",
+      "skin.shoo.name": "Tênis de sprint",
+      "skin.pants.name": "Calça de trilha",
+      "skin.colors.name": "Toque de cor",
+      "skin.colorAll.name": "Multicor total"
     },
     "de": {
       "app.title": "Ziellinie",
@@ -313,7 +352,20 @@
       "footer.forward": "Vor / Zurück",
       "footer.jump": "Sprung",
       "footer.home": "Zurück zum Start",
-      "touch.joystick": "Bewegungs-Joystick"
+      "touch.joystick": "Bewegungs-Joystick",
+      "nav.skins": "Skins",
+      "skins.eyebrow": "LÄUFER-SHOP",
+      "skins.title": "Zieh dich passend an.",
+      "skins.buy": "Kaufen",
+      "skins.equip": "Ausrüsten",
+      "skins.equipped": "Ausgerüstet",
+      "skins.owned": "Im Besitz",
+      "skins.priceCoins": "{n} Münzen",
+      "skin.default.name": "Klassischer Läufer",
+      "skin.shoo.name": "Sprint-Schuhe",
+      "skin.pants.name": "Trail-Hose",
+      "skin.colors.name": "Farbtupfer",
+      "skin.colorAll.name": "Voller Farbe"
     },
     "fr": {
       "app.title": "Ligne d'arrivée",
@@ -390,7 +442,20 @@
       "footer.forward": "Avant / Arrière",
       "footer.jump": "Saut",
       "footer.home": "Retour à l'accueil",
-      "touch.joystick": "Joystick de déplacement"
+      "touch.joystick": "Joystick de déplacement",
+      "nav.skins": "Tenues",
+      "skins.eyebrow": "BOUTIQUE DU COUREUR",
+      "skins.title": "Habille-toi pour l'aventure.",
+      "skins.buy": "Acheter",
+      "skins.equip": "Équiper",
+      "skins.equipped": "Équipé",
+      "skins.owned": "Possédé",
+      "skins.priceCoins": "{n} pièces",
+      "skin.default.name": "Coureur classique",
+      "skin.shoo.name": "Chaussures de sprint",
+      "skin.pants.name": "Pantalon de piste",
+      "skin.colors.name": "Touche de couleur",
+      "skin.colorAll.name": "Multicolore total"
     }
   }
 }

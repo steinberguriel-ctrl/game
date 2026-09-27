@@ -737,6 +737,161 @@ body {
     }
 }
 
+.win-screen {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #244947 0%, #1b3838 100%);
+    color: var(--cream);
+    z-index: 10
+}
+
+.win-content {
+    text-align: center;
+    max-width: 500px;
+    padding: 40px;
+    animation: winFadeIn 0.5s ease-out
+}
+
+@keyframes winFadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px)
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0)
+    }
+}
+
+.win-trophy {
+    font-size: 80px;
+    margin-bottom: 20px;
+    animation: trophyBounce 1s ease-out
+}
+
+@keyframes trophyBounce {
+    0%, 100% {
+        transform: scale(1)
+    }
+    50% {
+        transform: scale(1.2)
+    }
+}
+
+.win-title {
+    font: 900 48px 'Space Grotesk', sans-serif;
+    margin: 0 0 10px;
+    color: var(--yellow);
+    text-shadow: 0 4px 0 rgba(0, 0, 0, .3)
+}
+
+.win-subtitle {
+    font: 500 18px Heebo, sans-serif;
+    margin: 0 0 30px;
+    color: rgba(245, 240, 232, .8)
+}
+
+.win-stats {
+    background: rgba(245, 240, 232, .1);
+    border-radius: 16px;
+    padding: 25px;
+    margin-bottom: 30px;
+    border: 1px solid rgba(245, 240, 232, .2)
+}
+
+.win-stat {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(245, 240, 232, .1)
+}
+
+.win-stat:last-child {
+    border-bottom: none
+}
+
+.win-stat.total {
+    border-top: 2px solid var(--yellow);
+    margin-top: 10px;
+    padding-top: 15px
+}
+
+.stat-label {
+    font: 500 16px Heebo, sans-serif;
+    color: rgba(245, 240, 232, .9)
+}
+
+.stat-value {
+    font: 700 24px 'Space Grotesk', sans-serif;
+    color: var(--yellow)
+}
+
+.stat-value.bonus {
+    color: #70c6bd
+}
+
+.win-screen .primary-button {
+    background: var(--coral);
+    color: var(--cream);
+    font: 800 16px Heebo, sans-serif;
+    padding: 15px 30px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    box-shadow: 0 4px 0 rgba(0, 0, 0, .3);
+    transition: transform 0.2s, box-shadow 0.2s
+}
+
+.win-screen .primary-button:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 rgba(0, 0, 0, .3)
+}
+
+.win-screen .primary-button:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 0 rgba(0, 0, 0, .3)
+}
+
+@media(max-width:700px) {
+    .win-content {
+        padding: 30px 20px;
+        max-width: calc(100vw - 40px)
+    }
+
+    .win-trophy {
+        font-size: 60px
+    }
+
+    .win-title {
+        font-size: 36px
+    }
+
+    .win-subtitle {
+        font-size: 16px
+    }
+
+    .win-stats {
+        padding: 20px
+    }
+
+    .stat-label {
+        font-size: 14px
+    }
+
+    .stat-value {
+        font-size: 20px
+    }
+
+    .win-screen .primary-button {
+        font-size: 14px;
+        padding: 12px 24px
+    }
+}
+
 #game-canvas {
     width: 100%;
     height: 100%;

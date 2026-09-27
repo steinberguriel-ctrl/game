@@ -13,6 +13,8 @@
     <link rel="stylesheet" href="style.css" />
     <link rel="stylesheet" href="mobile-fix.css" />
     <link rel="stylesheet" href="settings.css" />
+    <!-- טעינת ה-SDK של CrazyGames -->
+    <script src="https://sdk.crazygames.com/crazygames-sdk-v3.js"></script>
 </head>
 
 <body>
@@ -86,6 +88,29 @@
                     <div class="joystick-knob"></div>
                 </div>
                 <button data-key="Space" class="jump" aria-label="Jump" data-i18n-aria="footer.jump">↑</button>
+            </div>
+        </section>
+
+        <section id="win-screen" class="screen win-screen hidden">
+            <div class="win-content">
+                <div class="win-trophy">🏆</div>
+                <h2 class="win-title" data-i18n="win.title">Victory!</h2>
+                <p class="win-subtitle" data-i18n="win.subtitle">You completed the track</p>
+                <div class="win-stats">
+                    <div class="win-stat">
+                        <span class="stat-label" data-i18n="win.coinsCollected">Coins collected</span>
+                        <span class="stat-value" id="win-coins-collected">0</span>
+                    </div>
+                    <div class="win-stat">
+                        <span class="stat-label" data-i18n="win.bonusCoins">Bonus coins</span>
+                        <span class="stat-value bonus">+50</span>
+                    </div>
+                    <div class="win-stat total">
+                        <span class="stat-label" data-i18n="win.totalCoins">Total earned</span>
+                        <span class="stat-value" id="win-total-coins">0</span>
+                    </div>
+                </div>
+                <button id="win-home-button" class="primary-button" data-i18n="win.continue">Continue to Home <span>→</span></button>
             </div>
         </section>
     </main>

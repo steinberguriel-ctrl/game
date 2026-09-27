@@ -3,7 +3,112 @@ import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.170.0/examples/
 import { isMuted, playCoin, playCrash, playExplosion, playJump, playWin, startLevelMusic, startMusic, toggleMute } from './audio.js';
 import { applyTranslations, initSettings, onLanguageChange, t } from './i18n.js';
 
-const screens = { intro: document.querySelector('#intro-screen'), home: document.querySelector('#home-screen'), game: document.querySelector('#game-screen') };
+// CrazyGames SDK Integration
+let crazyGamesSDK = null;
+let isCrazyGamesPlatform = false;
+let sdkInitialized = false;
+
+// Initialize CrazyGames SDK
+function initCrazyGamesSDK() {
+    if (typeof CrazyGames !== 'undefined') {
+        try {
+            crazyGamesSDK = CrazyGames.SDK;
+            crazyGamesSDK.init().then(() => {
+                console.log('CrazyGames SDK initialized successfully');
+                isCrazyGamesPlatform = true;
+                sdkInitialized = true;
+            }).catch((error) => {
+                console.error('Failed to initialize CrazyGames SDK:', error);
+                sdkInitialized = false;
+            });
+        } catch (error) {
+            console.error('Error initializing CrazyGames SDK:', error);
+            sdkInitialized = false;
+        }
+    } else {
+        console.log('CrazyGames SDK not available');
+        sdkInitialized = false;
+    }
+}
+
+// Ad Functions
+// Note: Ads should be shown at strategic moments:
+// - Midgame ads: Between levels or after several attempts
+// - Rewarded ads: When user watches ad for bonus coins (already implemented in home.js)
+async function showMidgameAd() {
+    if (isCrazyGamesPlatform && crazyGamesSDK && sdkInitialized && crazyGamesSDK.ad && typeof crazyGamesSDK.ad.showAd === 'function') {
+        try {
+            await crazyGamesSDK.ad.showAd('midgame');
+            console.log('Midgame ad shown');
+        } catch (error) {
+            console.error('Failed to show midgame ad:', error);
+        }
+    }
+}
+
+async function showRewardedAd() {
+    if (isCrazyGamesPlatform && crazyGamesSDK && sdkInitialized && crazyGamesSDK.ad && typeof crazyGamesSDK.ad.showAd === 'function') {
+        try {
+            const adCompleted = await crazyGamesSDK.ad.showAd('rewarded');
+            if (adCompleted) {
+                console.log('Rewarded ad completed');
+                return true;
+            } else {
+                console.log('Rewarded ad not completed');
+                return false;
+            }
+        } catch (error) {
+            console.error('Failed to show rewarded ad:', error);
+            return false;
+        }
+    }
+    return false;
+}
+
+// Simplified data saving function (always uses localStorage)
+function saveGameDataToStorage(data) {
+    localStorage.setItem('finish-line.coins', String(data.coins));
+    localStorage.setItem('finish-line.selected-skin', data.selectedSkin);
+    localStorage.setItem('finish-line.owned-skins', JSON.stringify(data.ownedSkins));
+}
+
+// Game Lifecycle Events
+// These events help CrazyGames understand when the player is actually playing
+function gameplayStart() {
+    if (isCrazyGamesPlatform && crazyGamesSDK && sdkInitialized && typeof crazyGamesSDK.gameplayStart === 'function') {
+        try {
+            crazyGamesSDK.gameplayStart();
+            console.log('Gameplay started');
+        } catch (error) {
+            console.error('Error calling gameplayStart:', error);
+        }
+    }
+}
+
+function gameplayStop() {
+    if (isCrazyGamesPlatform && crazyGamesSDK && sdkInitialized && typeof crazyGamesSDK.gameplayStop === 'function') {
+        try {
+            crazyGamesSDK.gameplayStop();
+            console.log('Gameplay stopped');
+        } catch (error) {
+            console.error('Error calling gameplayStop:', error);
+        }
+    }
+}
+
+function happyTime() {
+    if (isCrazyGamesPlatform && crazyGamesSDK && sdkInitialized && typeof crazyGamesSDK.happyTime === 'function') {
+        try {
+            crazyGamesSDK.happyTime();
+            console.log('Happy time triggered (level complete)');
+        } catch (error) {
+            console.error('Error calling happyTime:', error);
+        }
+    }
+}
+
+const screens = { intro: document.querySelector('#intro-screen'), home: document.querySelector('#home-screen'), game: document.querySelector('#game-screen'), win: document.querySelector('#win-screen') };
+const COINS_STORAGE_KEY = 'finish-line.coins';
 const canvas = document.querySelector('#game-canvas');
 const progressBar = document.querySelector('#progress-bar');
 const distanceValue = document.querySelector('#distance-value');
@@ -35,7 +140,11 @@ document.querySelector('#trial-button').addEventListener('click', async () => {
 });
 document.querySelector('#play-button').addEventListener('click', () => { showScreen('game'); });
 document.querySelector('#restart-button').addEventListener('click', startGame);
-document.querySelector('#home-button').addEventListener('click', () => { cancelAnimationFrame(animationFrame); showScreen('home'); });
+document.querySelector('#home-button').addEventListener('click', () => { cancelAnimationFrame(animationFrame); gameplayStop(); showScreen('home'); });
+document.querySelector('#win-home-button').addEventListener('click', async () => {
+    cancelAnimationFrame(animationFrame);
+    await loadHomePage();
+});
 window.addEventListener('keydown', event => { if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Space', 'KeyA', 'KeyD', 'KeyW', 'KeyS'].includes(event.code)) { event.preventDefault(); keys.add(event.code); } });
 window.addEventListener('keyup', event => keys.delete(event.code));
 document.querySelectorAll('.touch-controls button').forEach(button => {
@@ -383,7 +492,7 @@ function buildWorld() {
 function getPlayerSkinFile() { return localStorage.getItem('finish-line.selected-skin-file') || 'boy.glb'; }
 function loadCharacter() { new GLTFLoader().load(`./${getPlayerSkinFile()}`, gltf => { player = gltf.scene; player.scale.setScalar(1.55); player.rotation.y = Math.PI / 2; player.traverse(node => { if (node.isMesh) { node.castShadow = true; node.receiveShadow = true; } }); player.position.set(0, -.2, 0); scene.add(player); if (gltf.animations.length) { playerMixer = new THREE.AnimationMixer(player); gltf.animations.forEach(clip => { playerActions[clip.name.toLowerCase()] = playerMixer.clipAction(clip); }); const idleClip = gltf.animations.find(clip => /idle|stand|rest/i.test(clip.name)) || gltf.animations[0]; activePlayerAction = playerMixer.clipAction(idleClip); activePlayerAction.play(); } }, undefined, () => { player = new THREE.Group(); player.add(new THREE.Mesh(new THREE.SphereGeometry(.55, 16, 12), makeMaterial('#172a2a'))); player.add(new THREE.Mesh(new THREE.BoxGeometry(.7, 1.4, .5), makeMaterial('#172a2a'))); player.rotation.y = Math.PI / 2; player.position.set(0, .4, 0); scene.add(player); }); }
 function setPlayerAnimation(moving) { if (!playerMixer) return; const actionName = Object.keys(playerActions).find(name => /walk|run|move/i.test(name)); const nextAction = moving && actionName ? playerActions[actionName] : Object.keys(playerActions).find(name => /idle|stand|rest/i.test(name)) ? playerActions[Object.keys(playerActions).find(name => /idle|stand|rest/i.test(name))] : activePlayerAction; if (!nextAction || nextAction === activePlayerAction) return; activePlayerAction?.fadeOut(.16); nextAction.reset().fadeIn(.16).play(); activePlayerAction = nextAction; }
-function startGame() { cancelAnimationFrame(animationFrame); createRenderer(); message.classList.add('hidden'); const level = Number(localStorage.getItem('finish-line.selected-stage')) || 1; updateTopbar(level); startLevelMusic(level); document.querySelector('#attempt-value').textContent = String(attempt).padStart(2, '0'); playerMixer = null; playerActions = {}; activePlayerAction = null; gameState = { x: 0, y: 3.95, z: 0, vx: 0, vy: 0, vz: 0, grounded: true, jumpLock: false, jumpCharging: false, jumpChargeTime: 0, over: false, rocks: [], platforms: [], coins: [], movingObstacles: [], rotatingWalls: [], enemies: [], slowZones: [], clouds: [], blinkers: [], collectedCoins: 0, goal: 119, level }; document.querySelector('#level-coins').textContent = '0'; document.querySelector('#level-best').textContent = `${Number(localStorage.getItem(`finish-line.best.${level}`)) || 0}%`; document.querySelector('#jump-charge-bar').style.width = '0%'; buildWorld(); clock = new THREE.Clock(); resize(); animationFrame = requestAnimationFrame(loop); }
+function startGame() { cancelAnimationFrame(animationFrame); createRenderer(); message.classList.add('hidden'); const level = Number(localStorage.getItem('finish-line.selected-stage')) || 1; updateTopbar(level); startLevelMusic(level); document.querySelector('#attempt-value').textContent = String(attempt).padStart(2, '0'); playerMixer = null; playerActions = {}; activePlayerAction = null; gameState = { x: 0, y: 3.95, z: 0, vx: 0, vy: 0, vz: 0, grounded: true, jumpLock: false, jumpCharging: false, jumpChargeTime: 0, over: false, rocks: [], platforms: [], coins: [], movingObstacles: [], rotatingWalls: [], enemies: [], slowZones: [], clouds: [], blinkers: [], collectedCoins: 0, goal: 119, level }; document.querySelector('#level-coins').textContent = '0'; document.querySelector('#level-best').textContent = `${Number(localStorage.getItem(`finish-line.best.${level}`)) || 0}%`; document.querySelector('#jump-charge-bar').style.width = '0%'; buildWorld(); clock = new THREE.Clock(); resize(); animationFrame = requestAnimationFrame(loop); gameplayStart(); }
 function resize() { const width = canvas.clientWidth, height = canvas.clientHeight; if (!width || !height) return; renderer.setSize(width, height, false); camera.aspect = width / height; camera.updateProjectionMatrix(); }
 window.addEventListener('resize', resize);
 function loop() { const dt = Math.min(clock.getDelta(), .04); if (!gameState.over) { update(dt); if (playerMixer) playerMixer.update(dt); render(); animationFrame = requestAnimationFrame(loop); } }
@@ -404,7 +513,7 @@ function update(dt) {
     gameState.enemies.forEach(enemy => { enemy.position.z = enemy.userData.baseZ + Math.sin(clock.elapsedTime * 2.4 + enemy.userData.phase) * 2.4; });
     gameState.clouds.forEach(cloud => { cloud.position.x += cloud.userData.speed * dt; if (cloud.position.x > gameState.goal + 25) cloud.position.x = -25; });
     gameState.blinkers.forEach(light => { light.material.emissiveIntensity = .35 + .65 * Math.abs(Math.sin(clock.elapsedTime * 2.2 + light.userData.phase)); });
-    gameState.coins.forEach(coin => { coin.rotation.z += dt * 4; if (!coin.visible) return; if (Math.abs(coin.position.x - gameState.x) < 1.25 && Math.abs(coin.position.y - gameState.y) < 1.4 && Math.abs(coin.position.z - gameState.z) < 1.3) { coin.visible = false; gameState.collectedCoins += 1; localStorage.setItem('finish-line.coins', String((Number(localStorage.getItem('finish-line.coins')) || 0) + 1)); playCoin(); document.querySelector('#level-coins').textContent = String(gameState.collectedCoins); } });
+    gameState.coins.forEach(coin => { coin.rotation.z += dt * 4; if (!coin.visible) return; if (Math.abs(coin.position.x - gameState.x) < 1.25 && Math.abs(coin.position.y - gameState.y) < 1.4 && Math.abs(coin.position.z - gameState.z) < 1.3) { coin.visible = false; gameState.collectedCoins += 1; localStorage.setItem(COINS_STORAGE_KEY, String((Number(localStorage.getItem(COINS_STORAGE_KEY)) || 0) + 1)); playCoin(); document.querySelector('#level-coins').textContent = String(gameState.collectedCoins); } });
     const hitRock = gameState.rocks.some(rock => Math.abs(rock.position.x - gameState.x) < 1.1 && Math.abs(rock.position.y - gameState.y) < 1.5 && Math.abs(rock.position.z - gameState.z) < 1.5);
     const hitMovingObstacle = gameState.movingObstacles.some(obstacle => Math.abs(obstacle.position.x - gameState.x) < 1.1 && Math.abs(obstacle.position.y - gameState.y) < 1.5 && Math.abs(obstacle.position.z - gameState.z) < 2);
     const hitWall = gameState.rotatingWalls.some(wall => Math.abs(wall.position.x - gameState.x) < 1.2 && Math.abs(wall.position.y - gameState.y) < 2 && Math.abs(wall.position.z - gameState.z) < 2.2);
@@ -489,6 +598,7 @@ function render() { renderer.render(scene, camera); }
 function lose(cause = 'fall') {
     if (gameState.over) return;
     gameState.over = true;
+    gameplayStop();
     if (cause === 'crash') playCrash(); else playExplosion();
     if (player) player.visible = false;
     messageKicker.textContent = t('lose.kicker');
@@ -500,15 +610,52 @@ function lose(cause = 'fall') {
 async function win() {
     if (gameState.over) return;
     gameState.over = true;
+    gameplayStop();
+    happyTime();
     localStorage.setItem(`finish-line.stage-${gameState.level}-complete`, 'true');
     if (gameState.level === 1) localStorage.setItem('finish-line.stage-one-complete', 'true');
     if (gameState.level === 2) localStorage.setItem('finish-line.stage-two-complete', 'true');
     if (gameState.level === 3) localStorage.setItem('finish-line.stage-three-complete', 'true');
     playWin();
-    await loadHomePage();
+    
+    // Calculate coin rewards
+    const collectedCoins = gameState.collectedCoins;
+    const bonusCoins = 50;
+    const totalCoins = collectedCoins + bonusCoins;
+    
+    // Update win screen with coin information
+    document.querySelector('#win-coins-collected').textContent = collectedCoins;
+    document.querySelector('#win-total-coins').textContent = totalCoins;
+    
+    // Save coins to storage
+    const currentCoins = Number(localStorage.getItem('finish-line.coins')) || 0;
+    const newTotalCoins = currentCoins + totalCoins;
+    localStorage.setItem('finish-line.coins', String(newTotalCoins));
+    
+    // Save game data to storage
+    saveGameDataToStorage({
+        coins: newTotalCoins,
+        selectedSkin: localStorage.getItem('finish-line.selected-skin') || 'default',
+        ownedSkins: JSON.parse(localStorage.getItem('finish-line.owned-skins') || '[]'),
+        completedStages: getCompletedStages()
+    });
+    
+    // Show win screen
+    showScreen('win');
+}
+
+function getCompletedStages() {
+    const completed = [];
+    for (let i = 1; i <= 33; i++) {
+        if (localStorage.getItem(`finish-line.stage-${i}-complete`) === 'true') {
+            completed.push(i);
+        }
+    }
+    return completed;
 }
 applyTranslations();
 initSettings();
+initCrazyGamesSDK();
 updateTopbar(gameState?.level);
 onLanguageChange(() => { updateMuteButton(); updateTopbar(gameState?.level); });
 if (localStorage.getItem('finish-line.skip-intro') === 'true') {

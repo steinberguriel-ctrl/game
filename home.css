@@ -132,25 +132,6 @@
     }
 }
 
-.coin-counter {
-    position: absolute;
-    left: 50%;
-    top: 15px;
-    transform: translateX(-50%);
-    height: 40px;
-    min-width: 118px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 7px;
-    padding: 0 14px;
-    background: rgba(20, 48, 48, .82);
-    border: 1px solid rgba(245, 240, 232, .2);
-    border-radius: 8px;
-    color: var(--cream);
-    box-shadow: 0 3px 0 rgba(8, 25, 25, .25)
-}
-
 .mute-button {
     position: absolute;
     top: 15px;
@@ -164,51 +145,6 @@
     color: var(--cream);
     cursor: pointer;
     font-size: 18px;
-}
-
-.coin-icon {
-    display: grid;
-    place-items: center;
-    width: 22px;
-    height: 22px;
-    border-radius: 50%;
-    background: var(--yellow);
-    color: #9b5a2e;
-    font-size: 13px;
-    border: 2px solid #e0a054
-}
-
-.coin-counter strong {
-    font: 700 17px 'Space Grotesk', sans-serif
-}
-
-.coin-counter small {
-    font-size: 11px;
-    color: #a9c2b9
-}
-
-@media(max-width:700px) {
-    .coin-counter {
-        top: 9px;
-        min-width: 94px;
-        height: 34px;
-        padding: 0 9px;
-        gap: 5px
-    }
-
-    .coin-icon {
-        width: 19px;
-        height: 19px;
-        font-size: 11px
-    }
-
-    .coin-counter strong {
-        font-size: 14px
-    }
-
-    .coin-counter small {
-        font-size: 9px
-    }
 }
 
 .hero-model {
@@ -236,133 +172,15 @@
     display: none
 }
 
-.view#trophies-view {
-    left: 32px;
-    right: auto;
-    transform: none;
-    width: min(520px, calc(100% - 64px));
-    border-radius: 0
-}
 
-.view#skins-view {
-    left: 32px;
-    right: auto;
-    transform: none;
-    width: min(560px, calc(100% - 64px));
-    border-radius: 0;
-    max-height: 62vh;
-    overflow-y: auto
-}
 
-.skins-list {
-    display: grid;
-    gap: 10px
-}
 
-.skin-card {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-    padding: 12px 14px;
-    background: rgba(20, 48, 48, .5);
-    border: 1px solid rgba(245, 240, 232, .18);
-}
 
-.skin-icon {
-    display: grid;
-    place-items: center;
-    flex: 0 0 46px;
-    width: 46px;
-    height: 46px;
-    border-radius: 10px;
-    background: rgba(255, 200, 87, .16);
-    color: var(--yellow);
-    font-size: 20px;
-    border: 1px solid rgba(245, 240, 232, .18)
-}
 
-.skin-info {
-    flex: 1;
-    min-width: 0
-}
 
-.skin-info b {
-    display: block;
-    font-size: 14px
-}
 
-.skin-info span {
-    display: block;
-    margin-top: 3px;
-    font-size: 12px;
-    color: #9bb5ad
-}
 
-.skin-action {
-    flex: 0 0 auto;
-    border: 0;
-    padding: 9px 16px;
-    font: 800 12px Heebo, sans-serif;
-    cursor: pointer;
-    color: var(--cream);
-    background: var(--coral);
-    box-shadow: 3px 3px 0 rgba(8, 25, 25, .4)
-}
-
-.skin-action:disabled {
-    cursor: default;
-    opacity: .6;
-    box-shadow: none
-}
-
-.skin-action.selected {
-    background: #70c6bd;
-    color: #172a2a
-}
-
-.skin-card.locked .skin-action {
-    background: rgba(245, 240, 232, .16);
-    color: rgba(245, 240, 232, .55)
-}
-
-@media(max-width:700px) {
-    .view#skins-view {
-        left: 50%;
-        right: auto;
-        transform: translateX(-50%);
-        width: calc(100% - 32px);
-        border-radius: 0
-    }
-
-    .skin-card {
-        padding: 10px 12px;
-        gap: 10px
-    }
-
-    .skin-icon {
-        flex-basis: 38px;
-        width: 38px;
-        height: 38px;
-        font-size: 16px
-    }
-
-    .skin-action {
-        padding: 8px 12px;
-        font-size: 11px
-    }
-}
-
-.coin-bag {
-    cursor: pointer;
-    transition: transform .15s, filter .15s
-}
-
-.coin-bag:hover {
-    transform: translateY(-4px);
-    filter: brightness(1.15)
-}
-
-.coin-reward-modal {
+.skins-modal {
     position: fixed;
     inset: 0;
     z-index: 30;
@@ -372,31 +190,32 @@
     padding: 20px
 }
 
-.coin-reward-modal[hidden] {
+.skins-modal[hidden] {
     display: none
 }
 
-.coin-reward-box {
+.skins-modal-box {
     position: relative;
-    width: min(390px, 100%);
+    width: min(500px, 100%);
     background: #f5f0e8;
     color: #172a2a;
     text-align: center;
     padding: 30px 24px;
-    box-shadow: 9px 9px 0 #132f30
+    box-shadow: 9px 9px 0 #132f30;
+    border-radius: 12px
 }
 
-.coin-reward-box .eyebrow {
+.skins-modal-box .eyebrow {
     color: #f25b3d;
     margin-bottom: 5px
 }
 
-.coin-reward-box h2 {
-    font-size: 38px;
-    margin: 0 0 10px
+.skins-modal-box h2 {
+    font-size: 32px;
+    margin: 0 0 20px
 }
 
-.close-reward {
+.close-skins-modal {
     position: absolute;
     top: 8px;
     right: 12px;
@@ -407,74 +226,183 @@
     cursor: pointer
 }
 
-.large-coin-bag {
-    width: 100px;
-    height: 78px;
-    margin: 12px auto 18px;
-    background: #9b5a2e;
-    border: 4px solid #e0a054;
-    border-radius: 20px 20px 30px 30px;
-    padding-top: 9px
+.skins-model-viewer {
+    width: 100%;
+    height: 250px;
+    background: rgba(20, 48, 48, .82);
+    border-radius: 8px;
+    margin: 20px 0;
+    position: relative
 }
 
-.large-coin-bag:before {
-    content: '';
-    display: block;
-    margin: -20px auto 0;
-    width: 70px;
-    height: 22px;
-    background: #ffc857;
-    border: 3px solid #ae6b2e;
-    border-radius: 50%
+.skins-nav-buttons {
+    display: flex;
+    justify-content: space-between;
+    margin: 15px 0
 }
 
-.large-coin-bag span {
-    color: #ffe58a;
-    margin: 4px;
-    font-size: 16px
-}
-
-.large-coin-bag span:first-child {
-    margin-right: 22px
-}
-
-.coin-reward-box>strong {
-    display: block;
-    color: #f25b3d;
-    font-size: 24px
-}
-
-.coin-reward-box p {
-    color: #657a75;
-    font-size: 13px
-}
-
-.collect-button {
+.skin-nav-button {
     border: 0;
-    background: #f25b3d;
-    color: #fff;
-    font: 800 15px Heebo;
-    padding: 12px 26px;
+    background: var(--coral);
+    color: var(--cream);
+    font: 800 16px Heebo;
+    padding: 10px 20px;
     cursor: pointer;
+    border-radius: 8px;
+    box-shadow: 3px 3px 0 rgba(8, 25, 25, .4)
+}
+
+.skin-nav-button:hover {
+    transform: translateY(-2px)
+}
+
+.skin-info-display {
+    margin: 20px 0
+}
+
+.skin-info-display h3 {
+    font-size: 24px;
+    margin: 0 0 10px;
+    color: #172a2a
+}
+
+.skin-price-display {
+    font-size: 18px;
+    color: #657a75;
+    font-weight: 700
+}
+
+.skin-price-display span:first-child {
+    color: #f25b3d;
+    font-size: 22px
+}
+
+.skin-action-buttons {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 20px
+}
+
+.skin-action-button {
+    border: 0;
+    background: var(--coral);
+    color: var(--cream);
+    font: 800 14px Heebo;
+    padding: 12px 24px;
+    cursor: pointer;
+    border-radius: 8px;
     box-shadow: 4px 4px 0 #172a2a
 }
 
-.coin-reward-box.reward-done .collect-button {
+.skin-action-button:disabled {
+    background: rgba(245, 240, 232, .16);
+    color: rgba(245, 240, 232, .55);
+    cursor: not-allowed;
+    box-shadow: none
+}
+
+.skin-action-button.watch-ad {
     background: #70c6bd;
     color: #172a2a
 }
 
-.coin-reward-box.reward-done #reward-progress {
-    color: #31856e
+.skin-action-button.watch-ad:hover {
+    background: #5fb5ac
 }
 
 @media(max-width:700px) {
-    .view#trophies-view {
-        left: 50%;
-        right: auto;
-        transform: translateX(-50%);
+    .skins-modal-box {
         width: calc(100% - 32px);
-        border-radius: 0
+        padding: 20px 16px
+    }
+
+    .skins-modal-box h2 {
+        font-size: 24px
+    }
+
+    .skins-model-viewer {
+        height: 200px
+    }
+
+    .skin-info-display h3 {
+        font-size: 20px
+    }
+
+    .skin-action-button {
+        padding: 10px 16px;
+        font-size: 12px
+    }
+}
+
+@media(max-width:700px) {
+    .home-header {
+        height: 58px
+    }
+
+    .coin-counter {
+        top: 9px;
+        min-width: 100px;
+        height: 34px;
+        padding: 0 9px;
+        gap: 5px
+    }
+
+    .coin-icon {
+        width: 19px;
+        height: 19px;
+        font-size: 11px
+    }
+
+    .coin-counter strong {
+        font-size: 14px
+    }
+
+    .coin-counter small {
+        font-size: 9px
+    }
+
+    .mute-button {
+        right: 50%;
+        transform: translateX(100px)
+    }
+
+    .home-hero {
+        inset: 58px 0 62px;
+        height: calc(100% - 120px)
+    }
+
+    .hero-copy {
+        padding-bottom: 3vh
+    }
+
+    .hero-copy h1 {
+        font-size: 20vw;
+        letter-spacing: -2px
+    }
+
+    .hero-model {
+        left: 30%;
+        top: 17%;
+        width: 28%;
+        height: 55%
+    }
+
+    .home-nav {
+        height: 62px
+    }
+
+    .nav-item {
+        padding: 9px 12px
+    }
+
+    .view {
+        bottom: 72px
+    }
+
+    .sun {
+        top: 12%;
+        right: 8%
     }
 }
 
@@ -523,6 +451,46 @@ body {
     justify-content: space-between;
     padding: 0 clamp(20px, 5vw, 76px);
     color: var(--cream)
+}
+
+.coin-counter {
+    position: absolute;
+    left: 50%;
+    top: 15px;
+    transform: translateX(-50%);
+    height: 40px;
+    min-width: 120px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    padding: 0 14px;
+    background: rgba(20, 48, 48, .82);
+    border: 1px solid rgba(245, 240, 232, .2);
+    border-radius: 8px;
+    color: var(--cream);
+    box-shadow: 0 3px 0 rgba(8, 25, 25, .25)
+}
+
+.coin-icon {
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    background: var(--yellow);
+    color: #9b5a2e;
+    font-size: 13px;
+    border: 2px solid #e0a054
+}
+
+.coin-counter strong {
+    font: 700 17px 'Space Grotesk', sans-serif
+}
+
+.coin-counter small {
+    font-size: 11px;
+    color: #a9c2b9
 }
 
 .logo {
@@ -751,7 +719,6 @@ body {
 }
 
 .status-card,
-.trophy-card,
 .profile-card {
     min-height: 90px;
     display: flex;
@@ -766,20 +733,17 @@ body {
     margin-right: 20px
 }
 
-.status-card b,
-.trophy-card b {
+.status-card b {
     display: block
 }
 
-.status-card span,
-.trophy-card span {
+.status-card span {
     display: block;
     color: #9bb5ad;
     font-size: 12px
 }
 
-.status-card>strong,
-.trophy-card>strong {
+.status-card>strong {
     margin-left: auto;
     color: var(--yellow)
 }
@@ -808,80 +772,4 @@ body {
 .profile-copy p {
     color: #9bb5ad;
     margin: 0
-}
-
-.coin-bag {
-    width: 75px;
-    height: 58px;
-    background: #9b5a2e;
-    border: 3px solid #e0a054;
-    border-radius: 15px 15px 22px 22px;
-    margin-right: 20px;
-    position: relative
-}
-
-.coin-bag:before {
-    content: '';
-    position: absolute;
-    left: 7px;
-    right: 7px;
-    top: -10px;
-    height: 15px;
-    background: var(--yellow);
-    border: 3px solid #ae6b2e;
-    border-radius: 50%
-}
-
-.coin-bag span {
-    color: #ffe58a;
-    font-size: 11px;
-    margin: 3px
-}
-
-.coin-bag span:first-child {
-    margin-right: 17px
-}
-
-@media(max-width:700px) {
-    .home-header {
-        height: 58px
-    }
-
-    .home-hero {
-        inset: 58px 0 62px;
-        height: calc(100% - 120px)
-    }
-
-    .hero-copy {
-        padding-bottom: 3vh
-    }
-
-    .hero-copy h1 {
-        font-size: 20vw;
-        letter-spacing: -2px
-    }
-
-    .hero-model {
-        left: 30%;
-        top: 17%;
-        width: 28%;
-        height: 55%
-    }
-
-    .home-nav {
-        height: 62px
-    }
-
-    .nav-item {
-        padding: 9px 12px
-    }
-
-    .view {
-        bottom: 72px
-    }
-
-    .sun {
-        top: 12%;
-        right: 8%
-    }
 }

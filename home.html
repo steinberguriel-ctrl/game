@@ -20,7 +20,7 @@
     <main class="home-app" data-i18n-title="app.homeTitle">
         <header class="home-header">
             <div class="logo" data-i18n="app.title"><i></i>Finish Line</div>
-            <div class="coin-counter" aria-label="Coin count" data-i18n-aria="home.coinsAria"><span class="coin-icon">●</span><strong
+            <div class="coin-counter"><span class="coin-icon">●</span><strong
                     id="coin-total-header">0</strong><small data-i18n="home.coinsLabel">coins</small></div>
             <button class="mute-button" type="button" aria-label="Mute music">🔊</button>
             <div class="header-note" data-i18n="track.status"><b></b> Track 01 · Very hot</div>
@@ -40,8 +40,7 @@
         </section>
         <nav class="home-nav" aria-label="Home screen navigation" data-i18n-aria="home.navAria"><button class="nav-item active" data-i18n="nav.home"
                 data-screen="home-view"><span>⌂</span>Home</button><button id="next-stage-button"
-                class="nav-item play-nav" type="button" data-i18n="nav.play"><span>▶</span>Play</button><button class="nav-item" data-i18n="nav.trophies"
-                data-screen="trophies-view"><span>♜</span>Trophies</button><button class="nav-item" data-i18n="nav.skins"
+                class="nav-item play-nav" type="button" data-i18n="nav.play"><span>▶</span>Play</button><button class="nav-item" data-i18n="nav.skins"
                 data-screen="skins-view"><span>◆</span>Skins</button></nav>
         <section id="home-view" class="view active-view">
             <div><span class="eyebrow" data-i18n="home.yourTrack">YOUR TRACK</span>
@@ -53,29 +52,29 @@
                 <strong id="stage-status-mark">→</strong>
             </div>
         </section>
-        <section id="trophies-view" class="view">
-            <div><span class="eyebrow" data-i18n="trophies.eyebrow">ACHIEVEMENTS</span>
-                <h2 data-i18n="trophies.title">Every step counts.</h2>
-            </div>
-            <div class="trophy-card"><button id="coin-bag-button" class="coin-bag"
-                    aria-label="Collect coins" data-i18n-aria="reward.collect"><span>●</span><span>●</span><span>●</span></button>
-                <div><b data-i18n="coinbag.title">Coin bag</b><span data-i18n="coinbag.hint">Click to get coins</span></div><strong id="coin-total">+250</strong>
-            </div>
-        </section>
-        <section id="skins-view" class="view">
-            <div><span class="eyebrow" data-i18n="skins.eyebrow">RUNNER SHOP</span>
+
+
+        <div id="skins-modal" class="skins-modal" hidden>
+            <div class="skins-modal-box">
+                <button id="close-skins-modal" class="close-skins-modal" aria-label="Close" data-i18n-aria="settings.close">×</button>
+                <span class="eyebrow" data-i18n="skins.eyebrow">RUNNER SHOP</span>
                 <h2 data-i18n="skins.title">Dress the part.</h2>
-            </div>
-            <div id="skins-list" class="skins-list"></div>
-        </section>
-        <div id="coin-reward-modal" class="coin-reward-modal" hidden>
-            <div class="coin-reward-box"><button id="close-reward" class="close-reward"
-                    aria-label="Close" data-i18n-aria="settings.close">×</button><span class="eyebrow" data-i18n="reward.eyebrow">TRACK REWARD</span>
-                <h2 data-i18n="coinbag.title">Coin bag</h2>
-                <div class="large-coin-bag"><span>●</span><span>●</span><span>●</span></div><strong
-                    id="reward-value">You got: 0</strong>
-                <p id="reward-progress">Click again to open the bag</p><button id="collect-reward" class="collect-button">Collect
-                    coins</button>
+                <div id="skins-model-viewer" class="skins-model-viewer"></div>
+                <div class="skins-nav-buttons">
+                    <button id="prev-skin" class="skin-nav-button">◀</button>
+                    <button id="next-skin" class="skin-nav-button">▶</button>
+                </div>
+                <div class="skin-info-display">
+                    <h3 id="skin-name-display">Skin Name</h3>
+                    <div class="skin-price-display">
+                        <span id="skin-price-value">0</span> coins
+                    </div>
+                </div>
+                <div class="skin-action-buttons">
+                    <button id="buy-skin-button" class="skin-action-button">Buy</button>
+                    <button id="equip-skin-button" class="skin-action-button">Equip</button>
+                    <button id="watch-ad-button" class="skin-action-button watch-ad">Watch Ad</button>
+                </div>
             </div>
         </div>
     </main>

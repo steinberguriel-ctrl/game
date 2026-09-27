@@ -1,19 +1,99 @@
 import * as THREE from 'https://cdn.jsdelivr.net/npm/three@0.170.0/build/three.module.js';
 import { GLTFLoader } from 'https://cdn.jsdelivr.net/npm/three@0.170.0/examples/jsm/loaders/GLTFLoader.js';
-import { isMuted, playCoin, startMusic, toggleMute } from './audio.js';
+import { isMuted, startMusic, stopMusic, toggleMute } from './audio.js';
 import { applyTranslations, initSettings, onLanguageChange, t } from './i18n.js';
 
+// CrazyGames SDK Integration
+let crazyGamesSDK = null;
+let isCrazyGamesPlatform = false;
+let sdkInitialized = false;
+
+// Initialize CrazyGames SDK
+function initCrazyGamesSDK() {
+    if (typeof CrazyGames !== 'undefined') {
+        try {
+            crazyGamesSDK = CrazyGames.SDK;
+            crazyGamesSDK.init().then(() => {
+                console.log('CrazyGames SDK initialized successfully in home');
+                isCrazyGamesPlatform = true;
+                sdkInitialized = true;
+            }).catch((error) => {
+                console.error('Failed to initialize CrazyGames SDK in home:', error);
+                sdkInitialized = false;
+            });
+        } catch (error) {
+            console.error('Error initializing CrazyGames SDK in home:', error);
+            sdkInitialized = false;
+        }
+    } else {
+        console.log('CrazyGames SDK not available in home');
+        sdkInitialized = false;
+    }
+}
+
+// Rewarded Ad Function (for watch ad button)
+// Uses the real CrazyGames v3 API: SDK.ad.requestAd(type, callbacks) — there is
+// no ad.showAd method on the SDK, so that call never actually requested an ad.
+function showRewardedAdForCoins() {
+    if (!(isCrazyGamesPlatform && crazyGamesSDK && sdkInitialized && crazyGamesSDK.ad && typeof crazyGamesSDK.ad.requestAd === 'function')) {
+        return Promise.resolve(false);
+    }
+    return new Promise(resolve => {
+        let settled = false;
+        crazyGamesSDK.ad.requestAd('rewarded', {
+            adStarted: () => {
+                // Required by CrazyGames: mute/pause our own audio while their ad plays.
+                stopMusic();
+            },
+            adFinished: () => {
+                if (settled) return;
+                settled = true;
+                console.log('Rewarded ad completed in home');
+                startMusic('home');
+                resolve(true);
+            },
+            adError: error => {
+                if (settled) return;
+                settled = true;
+                // Fires for real errors and for unfilled/adblocked requests alike.
+                console.warn('Rewarded ad not completed in home:', error);
+                startMusic('home');
+                resolve(false);
+            },
+        });
+    });
+}
+
+// Simplified data saving function (always uses localStorage)
+function saveGameDataToStorage(data) {
+    localStorage.setItem('finish-line.coins', String(data.coins));
+    localStorage.setItem('finish-line.selected-skin', data.selectedSkin);
+    localStorage.setItem('finish-line.owned-skins', JSON.stringify(data.ownedSkins));
+}
+
+function getCompletedStages() {
+    const completed = [];
+    for (let i = 1; i <= 33; i++) {
+        if (localStorage.getItem(`finish-line.stage-${i}-complete`) === 'true') {
+            completed.push(i);
+        }
+    }
+    return completed;
+}
+
 const loader = new GLTFLoader();
-const views = [...document.querySelectorAll('.view')];
-const navItems = [...document.querySelectorAll('.nav-item')];
 const nextStageButton = document.querySelector('#next-stage-button');
-const coinBagButton = document.querySelector('#coin-bag-button');
-const coinRewardModal = document.querySelector('#coin-reward-modal');
-const closeRewardButton = document.querySelector('#close-reward');
-const collectRewardButton = document.querySelector('#collect-reward');
-const rewardValue = document.querySelector('#reward-value');
-const rewardProgress = document.querySelector('#reward-progress');
-const coinTotal = document.querySelector('#coin-total');
+const navItems = [...document.querySelectorAll('.nav-item')];
+const skinsModal = document.querySelector('#skins-modal');
+const closeSkinsModalButton = document.querySelector('#close-skins-modal');
+const prevSkinButton = document.querySelector('#prev-skin');
+const nextSkinButton = document.querySelector('#next-skin');
+const buySkinButton = document.querySelector('#buy-skin-button');
+const equipSkinButton = document.querySelector('#equip-skin-button');
+const watchAdButton = document.querySelector('#watch-ad-button');
+const skinNameDisplay = document.querySelector('#skin-name-display');
+const skinPriceValue = document.querySelector('#skin-price-value');
+const skinsModelViewer = document.querySelector('#skins-model-viewer');
 const coinTotalHeader = document.querySelector('#coin-total-header');
 const COINS_STORAGE_KEY = 'finish-line.coins';
 const SKIN_STORAGE_KEY = 'finish-line.selected-skin';
@@ -26,7 +106,6 @@ const SKINS = [
     { id: 'colors', file: 'boycolers.glb', price: 250, nameKey: 'skin.colors.name' },
     { id: 'colorAll', file: 'boycolerAll.glb', price: 350, nameKey: 'skin.colorAll.name' },
 ];
-const skinsList = document.querySelector('#skins-list');
 
 function getOwnedSkins() {
     try {
@@ -42,46 +121,6 @@ function getSelectedSkin() {
     return SKINS.find(skin => skin.id === id) || SKINS[0];
 }
 
-function renderSkins() {
-    if (!skinsList) return;
-    const owned = new Set(['default', ...getOwnedSkins()]);
-    const selectedId = getSelectedSkin().id;
-    skinsList.innerHTML = '';
-    SKINS.forEach(skin => {
-        const isOwned = owned.has(skin.id);
-        const isSelected = skin.id === selectedId;
-        const card = document.createElement('div');
-        card.className = `skin-card${isOwned ? '' : ' locked'}`;
-        const icon = document.createElement('div');
-        icon.className = 'skin-icon';
-        icon.textContent = '◆';
-        const info = document.createElement('div');
-        info.className = 'skin-info';
-        const name = document.createElement('b');
-        name.textContent = t(skin.nameKey);
-        const status = document.createElement('span');
-        status.textContent = isOwned ? (isSelected ? t('skins.equipped') : t('skins.owned')) : t('skins.priceCoins', { n: skin.price });
-        info.append(name, status);
-        const action = document.createElement('button');
-        action.type = 'button';
-        action.className = 'skin-action';
-        if (isSelected) {
-            action.classList.add('selected');
-            action.textContent = t('skins.equipped');
-            action.disabled = true;
-        } else if (isOwned) {
-            action.textContent = t('skins.equip');
-            action.addEventListener('click', () => { selectSkin(skin.id); });
-        } else {
-            action.textContent = t('skins.buy');
-            action.disabled = rewardTotal < skin.price;
-            action.addEventListener('click', () => { buySkin(skin); });
-        }
-        card.append(icon, info, action);
-        skinsList.appendChild(card);
-    });
-}
-
 function buySkin(skin) {
     if (rewardTotal < skin.price) return;
     rewardTotal -= skin.price;
@@ -92,22 +131,41 @@ function buySkin(skin) {
     localStorage.setItem(SKIN_STORAGE_KEY, skin.id);
     localStorage.setItem(SKIN_FILE_STORAGE_KEY, skin.file);
     updateCoinTotal();
-    renderSkins();
     refreshHeroModel();
+    
+    // Save game data to storage
+    saveGameDataToStorage({
+        coins: rewardTotal,
+        selectedSkin: skin.id,
+        ownedSkins: owned,
+        completedStages: getCompletedStages()
+    });
 }
 
 function selectSkin(id) {
     localStorage.setItem(SKIN_STORAGE_KEY, id);
     const skin = SKINS.find(item => item.id === id);
     if (skin) localStorage.setItem(SKIN_FILE_STORAGE_KEY, skin.file);
-    renderSkins();
     refreshHeroModel();
+    
+    // Save game data to storage
+    saveGameDataToStorage({
+        coins: rewardTotal,
+        selectedSkin: id,
+        ownedSkins: getOwnedSkins(),
+        completedStages: getCompletedStages()
+    });
 }
 
-let rewardOpeningsLeft = 0;
 let rewardTotal = Number(localStorage.getItem(COINS_STORAGE_KEY)) || 0;
 const SELECTED_STAGE_KEY = 'finish-line.selected-stage';
 const TOTAL_STAGES = 33;
+
+function updateCoinTotal() {
+    if (coinTotalHeader) {
+        coinTotalHeader.textContent = rewardTotal;
+    }
+}
 
 function isStageComplete(stage) {
     return localStorage.getItem(`finish-line.stage-${stage}-complete`) === 'true'
@@ -153,11 +211,11 @@ function stageName(stage) {
     return t('stage.generic', { n: String(stage).padStart(2, '0') });
 }
 
-function showView(id) {
-    views.forEach(view => view.classList.toggle('active-view', view.id === id));
-    navItems.forEach(item => item.classList.toggle('active', item.dataset.screen === id));
-}
-navItems.forEach(item => item.addEventListener('click', () => { if (item.dataset.screen) showView(item.dataset.screen); }));
+navItems.forEach(item => item.addEventListener('click', () => { 
+    if (item.dataset.screen === 'home-view') {
+        // Handle home view
+    }
+}));
 async function startNextStage() {
     startMusic('home');
     localStorage.setItem(SELECTED_STAGE_KEY, localStorage.getItem(SELECTED_STAGE_KEY) || '1');
@@ -189,57 +247,119 @@ const muteButton = document.querySelector('.mute-button');
 updateMuteButton(muteButton);
 muteButton.addEventListener('click', () => { toggleMute(); updateMuteButton(muteButton); });
 
-function updateCoinTotal() {
-    coinTotal.textContent = t('coins.total', { n: rewardTotal });
-    coinTotalHeader.textContent = rewardTotal;
-}
 
-function closeReward() {
-    coinRewardModal.hidden = true;
-    document.querySelector('.coin-reward-box').classList.remove('reward-done');
-}
 
-let rewardLastAmount = 0;
-let rewardOpened = false;
+let currentSkinIndex = 0;
+let skinsModalViewer = null;
 
-function renderReward() {
-    rewardValue.textContent = t('reward.got', { amount: rewardLastAmount });
-    if (rewardOpeningsLeft > 0) rewardProgress.textContent = t('reward.left', { n: rewardOpeningsLeft });
-    else rewardProgress.textContent = rewardOpened ? t('reward.empty') : t('reward.click');
-    collectRewardButton.textContent = rewardOpened && rewardOpeningsLeft < 1 ? t('reward.collected') : t('reward.collect');
-}
-
-function openCoinBag() {
-    rewardOpeningsLeft = 2 + Math.floor(Math.random() * 4);
-    rewardLastAmount = 0;
-    rewardOpened = true;
-    collectRewardButton.disabled = false;
-    renderReward();
-    coinRewardModal.hidden = false;
-}
-
-function collectCoins() {
-    if (rewardOpeningsLeft < 1) return;
-    const amount = [50, 75, 100][Math.floor(Math.random() * 3)];
-    playCoin();
-    rewardTotal += amount;
-    rewardOpeningsLeft -= 1;
-    localStorage.setItem(COINS_STORAGE_KEY, String(rewardTotal));
-    updateCoinTotal();
-    rewardLastAmount = amount;
-    renderReward();
-    renderSkins();
-    if (!rewardOpeningsLeft) {
-        collectRewardButton.disabled = true;
-        document.querySelector('.coin-reward-box').classList.add('reward-done');
+function openSkinsModal() {
+    currentSkinIndex = 0;
+    updateSkinsModal();
+    skinsModal.hidden = false;
+    if (!skinsModalViewer) {
+        skinsModalViewer = makeModelViewer(skinsModelViewer, 1.2);
     }
 }
 
-coinBagButton.addEventListener('click', openCoinBag);
-collectRewardButton.addEventListener('click', collectCoins);
-closeRewardButton.addEventListener('click', closeReward);
-coinRewardModal.addEventListener('click', event => { if (event.target === coinRewardModal) closeReward(); });
-updateCoinTotal();
+function closeSkinsModal() {
+    skinsModal.hidden = true;
+}
+
+function updateSkinsModal() {
+    if (!skinNameDisplay || !skinPriceValue) return;
+    
+    const skin = SKINS[currentSkinIndex];
+    const owned = new Set(['default', ...getOwnedSkins()]);
+    const selectedId = getSelectedSkin().id;
+    const isOwned = owned.has(skin.id);
+    const isSelected = skin.id === selectedId;
+    
+    skinNameDisplay.textContent = t(skin.nameKey);
+    skinPriceValue.textContent = skin.price;
+    
+    if (isSelected) {
+        buySkinButton.hidden = true;
+        equipSkinButton.hidden = true;
+        watchAdButton.hidden = true;
+    } else if (isOwned) {
+        buySkinButton.hidden = true;
+        equipSkinButton.hidden = false;
+        watchAdButton.hidden = true;
+    } else {
+        buySkinButton.hidden = false;
+        equipSkinButton.hidden = true;
+        if (rewardTotal < skin.price) {
+            buySkinButton.disabled = true;
+            watchAdButton.hidden = false;
+        } else {
+            buySkinButton.disabled = false;
+            watchAdButton.hidden = true;
+        }
+    }
+    
+    if (skinsModalViewer) {
+        skinsModalViewer.setSkin(skin.file);
+    }
+}
+
+function nextSkin() {
+    currentSkinIndex = (currentSkinIndex + 1) % SKINS.length;
+    updateSkinsModal();
+}
+
+function prevSkin() {
+    currentSkinIndex = (currentSkinIndex - 1 + SKINS.length) % SKINS.length;
+    updateSkinsModal();
+}
+
+function buySkinFromModal() {
+    const skin = SKINS[currentSkinIndex];
+    if (rewardTotal < skin.price) return;
+    buySkin(skin);
+    updateSkinsModal();
+}
+
+function equipSkinFromModal() {
+    const skin = SKINS[currentSkinIndex];
+    selectSkin(skin.id);
+    updateSkinsModal();
+}
+
+async function watchAdForCoins() {
+    const adCompleted = await showRewardedAdForCoins();
+    if (adCompleted) {
+        const adReward = 100;
+        rewardTotal += adReward;
+        localStorage.setItem(COINS_STORAGE_KEY, String(rewardTotal));
+        updateCoinTotal();
+        updateSkinsModal();
+        
+        // Save game data to storage
+        saveGameDataToStorage({
+            coins: rewardTotal,
+            selectedSkin: getSelectedSkin().id,
+            ownedSkins: getOwnedSkins(),
+            completedStages: getCompletedStages()
+        });
+    }
+}
+
+closeSkinsModalButton.addEventListener('click', closeSkinsModal);
+prevSkinButton.addEventListener('click', prevSkin);
+nextSkinButton.addEventListener('click', nextSkin);
+buySkinButton.addEventListener('click', buySkinFromModal);
+equipSkinButton.addEventListener('click', equipSkinFromModal);
+watchAdButton.addEventListener('click', watchAdForCoins);
+skinsModal.addEventListener('click', event => { if (event.target === skinsModal) closeSkinsModal(); });
+
+// Modify the skins view click to open modal instead
+const skinsNavItem = document.querySelector('[data-screen="skins-view"]');
+if (skinsNavItem) {
+    skinsNavItem.addEventListener('click', (e) => {
+        e.preventDefault();
+        openSkinsModal();
+    });
+}
 
 let heroViewer = null;
 
@@ -319,5 +439,6 @@ heroViewer = makeModelViewer(document.querySelector('#hero-model'), 1.35);
 startMusic('home');
 applyTranslations();
 initSettings();
-renderSkins();
-onLanguageChange(() => { updateStageState(); updateMuteButton(muteButton); updateCoinTotal(); renderReward(); renderSkins(); });
+initCrazyGamesSDK();
+updateCoinTotal();
+onLanguageChange(() => { updateStageState(); updateMuteButton(muteButton); updateSkinsModal(); });

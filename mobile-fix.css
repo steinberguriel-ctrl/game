@@ -70,8 +70,9 @@
         bottom: max(14px, env(safe-area-inset-bottom));
         z-index: 25;
         display: flex;
-        justify-content: center;
-        gap: 12px;
+        justify-content: space-between;
+        align-items: center;
+        padding-inline: max(20px, env(safe-area-inset-left)) max(20px, env(safe-area-inset-right));
         pointer-events: none;
     }
 
@@ -123,7 +124,38 @@
     }
 
     .game-screen .touch-controls .jump {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
         background: rgba(255, 200, 87, .5);
         color: var(--ink);
+    }
+
+    .game-screen .touch-controls.is-position-editing > * {
+        outline: 2px dashed rgba(255, 200, 87, .95);
+        outline-offset: 4px;
+        cursor: grab;
+    }
+
+    .game-screen .touch-controls.is-position-editing > *:active {
+        cursor: grabbing;
+    }
+
+    .game-screen .touch-edit-hint {
+        position: fixed;
+        left: 50%;
+        bottom: max(138px, calc(env(safe-area-inset-bottom) + 128px));
+        z-index: 26;
+        width: min(88vw, 400px);
+        padding: 8px 12px;
+        border: 1px solid rgba(245, 240, 232, .3);
+        border-radius: 10px;
+        background: rgba(23, 42, 42, .72);
+        color: var(--cream);
+        font-size: 12px;
+        line-height: 1.4;
+        text-align: center;
+        transform: translateX(-50%);
+        pointer-events: none;
     }
 }

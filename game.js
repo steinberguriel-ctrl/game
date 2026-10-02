@@ -10,6 +10,10 @@ let sdkInitialized = false;
 
 // Initialize CrazyGames SDK
 function initCrazyGamesSDK() {
+    if (['localhost', '127.0.0.1', '::1'].includes(window.location.hostname)) {
+        sdkInitialized = false;
+        return;
+    }
     if (typeof CrazyGames !== 'undefined') {
         try {
             crazyGamesSDK = CrazyGames.SDK;
@@ -116,6 +120,8 @@ const message = document.querySelector('#game-message');
 const messageTitle = document.querySelector('#message-title');
 const messageKicker = document.querySelector('#message-kicker');
 const keys = new Set();
+const MOBILE_CONTROLS_POSITION_KEY = 'finish-line.mobile-control-positions';
+const MOBILE_CONTROLS_EDIT_KEY = 'finish-line.mobile-controls-edit';
 let renderer, scene, camera, player, playerMixer, playerActions = {}, activePlayerAction, clock, animationFrame, attempt = 1, gameState;
 const dummy = new THREE.Object3D();
 
@@ -147,36 +153,153 @@ document.querySelector('#win-home-button').addEventListener('click', async () =>
 });
 window.addEventListener('keydown', event => { if (['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown', 'Space', 'KeyA', 'KeyD', 'KeyW', 'KeyS'].includes(event.code)) { event.preventDefault(); keys.add(event.code); } });
 window.addEventListener('keyup', event => keys.delete(event.code));
+const touchControls = document.querySelector('.touch-controls');
+const joystick = document.querySelector('.joystick');
+const joystickKnob = document.querySelector('.joystick-knob');
+const controlElements = {
+    joystick,
+    jump: document.querySelector('.touch-controls .jump'),
+};
+const joystickKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
+let controlDrag = null;
+let activeJoystickPointer = null;
+function isMobileControlEditing() {
+    return window.matchMedia('(max-width: 760px)').matches
+        && localStorage.getItem(MOBILE_CONTROLS_EDIT_KEY) === 'true';
+}
+function loadMobileControlPositions() {
+    try {
+        const positions = JSON.parse(localStorage.getItem(MOBILE_CONTROLS_POSITION_KEY) || '{}');
+        Object.entries(controlElements).forEach(([name, element]) => {
+            const position = positions[name];
+            if (!element || !Number.isFinite(position?.x) || !Number.isFinite(position?.y)) return;
+            element.style.position = 'fixed';
+            element.style.left = `${position.x * 100}vw`;
+            element.style.top = `${position.y * 100}dvh`;
+            element.style.right = 'auto';
+            element.style.bottom = 'auto';
+            element.style.transform = 'translate(-50%, -50%)';
+        });
+    } catch (error) {
+        console.warn('Could not load saved mobile control positions:', error);
+    }
+}
+function saveMobileControlPosition(name, element) {
+    let positions = {};
+    try {
+        positions = JSON.parse(localStorage.getItem(MOBILE_CONTROLS_POSITION_KEY) || '{}');
+    } catch (error) {
+        console.warn('Could not read saved mobile control positions:', error);
+    }
+    const bounds = element.getBoundingClientRect();
+    positions[name] = {
+        x: Math.min(1, Math.max(0, (bounds.left + bounds.width / 2) / window.innerWidth)),
+        y: Math.min(1, Math.max(0, (bounds.top + bounds.height / 2) / window.innerHeight)),
+    };
+    localStorage.setItem(MOBILE_CONTROLS_POSITION_KEY, JSON.stringify(positions));
+}
+function positionDraggedControl(event) {
+    const { element, offsetX, offsetY } = controlDrag;
+    const halfWidth = element.offsetWidth / 2;
+    const halfHeight = element.offsetHeight / 2;
+    const centerX = Math.min(window.innerWidth - halfWidth, Math.max(halfWidth, event.clientX - offsetX));
+    const centerY = Math.min(window.innerHeight - halfHeight, Math.max(halfHeight, event.clientY - offsetY));
+    element.style.position = 'fixed';
+    element.style.left = `${centerX}px`;
+    element.style.top = `${centerY}px`;
+    element.style.right = 'auto';
+    element.style.bottom = 'auto';
+    element.style.transform = 'translate(-50%, -50%)';
+}
+Object.entries(controlElements).forEach(([name, element]) => {
+    if (!element) return;
+    element.addEventListener('pointerdown', event => {
+        if (!isMobileControlEditing()) return;
+        event.preventDefault();
+        const bounds = element.getBoundingClientRect();
+        controlDrag = {
+            name,
+            element,
+            pointerId: event.pointerId,
+            bounds,
+            activated: false,
+            offsetX: event.clientX - (bounds.left + bounds.width / 2),
+            offsetY: event.clientY - (bounds.top + bounds.height / 2),
+        };
+        element.setPointerCapture(event.pointerId);
+    }, true);
+    element.addEventListener('pointermove', event => {
+        if (controlDrag?.element !== element || controlDrag.pointerId !== event.pointerId) return;
+        if (!controlDrag.activated) {
+            const { bounds } = controlDrag;
+            const leftBounds = event.clientX < bounds.left;
+            const rightBounds = event.clientX > bounds.right;
+            const aboveBounds = event.clientY < bounds.top;
+            const belowBounds = event.clientY > bounds.bottom;
+            if (!leftBounds && !rightBounds && !aboveBounds && !belowBounds) return;
+            controlDrag.activated = true;
+        }
+        event.preventDefault();
+        positionDraggedControl(event);
+    });
+    const finishControlDrag = event => {
+        if (controlDrag?.element !== element || controlDrag.pointerId !== event.pointerId) return;
+        if (controlDrag.activated) saveMobileControlPosition(name, element);
+        controlDrag = null;
+    };
+    ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(type => element.addEventListener(type, finishControlDrag));
+});
+loadMobileControlPositions();
+if (isMobileControlEditing()) {
+    touchControls.classList.add('is-position-editing');
+    const hint = document.createElement('div');
+    hint.className = 'touch-edit-hint';
+    hint.textContent = t('settings.moveControlsHelp');
+    document.querySelector('#game-screen').appendChild(hint);
+}
 document.querySelectorAll('.touch-controls button').forEach(button => {
     const key = button.dataset.key;
     const release = () => keys.delete(key);
     button.addEventListener('pointerdown', event => {
+        if (isMobileControlEditing()) return;
         event.preventDefault();
         button.setPointerCapture?.(event.pointerId);
         keys.add(key);
     });
     ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(type => button.addEventListener(type, release));
 });
-const joystick = document.querySelector('.joystick');
-const joystickKnob = document.querySelector('.joystick-knob');
-const joystickKeys = ['ArrowLeft', 'ArrowRight', 'ArrowUp', 'ArrowDown'];
 function resetJoystick() {
     joystickKeys.forEach(key => keys.delete(key));
     joystickKnob.style.transform = 'translate(-50%, -50%)';
 }
 function updateJoystick(event) {
-    const rect = joystick.getBoundingClientRect();
-    const radius = rect.width * .5;
+    if (!activeJoystickPointer) return;
+    const radius = joystick.offsetWidth * .5;
     const knobRadius = joystickKnob.offsetWidth * .5;
-    let dx = event.clientX - (rect.left + radius);
-    let dy = event.clientY - (rect.top + radius);
+    const dx = event.clientX - activeJoystickPointer.originX;
+    const dy = event.clientY - activeJoystickPointer.originY;
     const maxDistance = radius - knobRadius;
     const distance = Math.hypot(dx, dy);
-    if (distance > maxDistance) {
-        dx = dx / distance * maxDistance;
-        dy = dy / distance * maxDistance;
+    const knobDistance = Math.min(distance, maxDistance);
+    const knobX = distance ? dx / distance * knobDistance : 0;
+    const knobY = distance ? dy / distance * knobDistance : 0;
+    joystickKnob.style.transform = `translate(calc(-50% + ${knobX}px), calc(-50% + ${knobY}px))`;
+    if (
+        event.clientX < activeJoystickPointer.originX - radius
+        || event.clientX > activeJoystickPointer.originX + radius
+        || event.clientY < activeJoystickPointer.originY - radius
+        || event.clientY > activeJoystickPointer.originY + radius
+    ) {
+        activeJoystickPointer.following = true;
     }
-    joystickKnob.style.transform = `translate(calc(-50% + ${dx}px), calc(-50% + ${dy}px))`;
+    if (activeJoystickPointer.following) {
+        joystick.style.position = 'fixed';
+        joystick.style.left = `${event.clientX}px`;
+        joystick.style.top = `${event.clientY}px`;
+        joystick.style.right = 'auto';
+        joystick.style.bottom = 'auto';
+        joystick.style.transform = 'translate(-50%, -50%)';
+    }
     joystickKeys.forEach(key => keys.delete(key));
     const deadZone = maxDistance * .22;
     if (Math.abs(dx) > deadZone) keys.add(dx < 0 ? 'ArrowLeft' : 'ArrowRight');
@@ -184,14 +307,53 @@ function updateJoystick(event) {
 }
 if (joystick) {
     joystick.addEventListener('pointerdown', event => {
+        if (isMobileControlEditing()) return;
         event.preventDefault();
         joystick.setPointerCapture?.(event.pointerId);
+        const bounds = joystick.getBoundingClientRect();
+        activeJoystickPointer = {
+            pointerId: event.pointerId,
+            originX: bounds.left + bounds.width / 2,
+            originY: bounds.top + bounds.height / 2,
+            following: false,
+        };
         updateJoystick(event);
     });
     joystick.addEventListener('pointermove', event => {
-        if (joystick.hasPointerCapture?.(event.pointerId)) updateJoystick(event);
+        if (!isMobileControlEditing() && activeJoystickPointer?.pointerId === event.pointerId) updateJoystick(event);
     });
-    ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(type => joystick.addEventListener(type, resetJoystick));
+    const releaseJoystick = event => {
+        if (activeJoystickPointer?.pointerId !== event.pointerId) return;
+        activeJoystickPointer = null;
+        resetJoystick();
+        const hasSavedPosition = localStorage.getItem(MOBILE_CONTROLS_POSITION_KEY);
+        try {
+            const positions = JSON.parse(hasSavedPosition || '{}');
+            const position = positions.joystick;
+            if (position && Number.isFinite(position.x) && Number.isFinite(position.y)) {
+                joystick.style.left = `${position.x * 100}vw`;
+                joystick.style.top = `${position.y * 100}dvh`;
+                joystick.style.position = 'fixed';
+                joystick.style.transform = 'translate(-50%, -50%)';
+            } else {
+                joystick.style.position = '';
+                joystick.style.left = '';
+                joystick.style.top = '';
+                joystick.style.right = '';
+                joystick.style.bottom = '';
+                joystick.style.transform = '';
+            }
+        } catch (error) {
+            console.warn('Could not restore mobile joystick position:', error);
+            joystick.style.position = '';
+            joystick.style.left = '';
+            joystick.style.top = '';
+            joystick.style.right = '';
+            joystick.style.bottom = '';
+            joystick.style.transform = '';
+        }
+    };
+    ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(type => joystick.addEventListener(type, releaseJoystick));
 }
 const muteButton = document.querySelector('.mute-button');
 function updateMuteButton() { const muted = isMuted(); muteButton.textContent = muted ? '🔇' : '🔊'; muteButton.setAttribute('aria-label', muted ? t('audio.unmute') : t('audio.mute')); }

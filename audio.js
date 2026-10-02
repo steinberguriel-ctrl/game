@@ -317,5 +317,5 @@ export function playExplosion() {
     kick(.26, 0);
 }
 
-window.addEventListener('pointerdown', () => { getAudio(); startMusic(); }, { once: true });
-window.addEventListener('keydown', () => { getAudio(); startMusic(); }, { once: true });
+window.addEventListener('pointerdown', () => { getAudio(); }, { once: true });
+window.addEventListener('keydown', () => { getAudio(); }, { once: true });

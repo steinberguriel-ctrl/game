@@ -10,6 +10,10 @@ let sdkInitialized = false;
 
 // Initialize CrazyGames SDK
 function initCrazyGamesSDK() {
+    if (['localhost', '127.0.0.1', '::1'].includes(window.location.hostname)) {
+        sdkInitialized = false;
+        return;
+    }
     if (typeof CrazyGames !== 'undefined') {
         try {
             crazyGamesSDK = CrazyGames.SDK;
@@ -217,7 +221,6 @@ navItems.forEach(item => item.addEventListener('click', () => {
     }
 }));
 async function startNextStage() {
-    startMusic('home');
     localStorage.setItem(SELECTED_STAGE_KEY, localStorage.getItem(SELECTED_STAGE_KEY) || '1');
     localStorage.setItem('finish-line.skip-intro', 'true');
     const response = await fetch('index.html');

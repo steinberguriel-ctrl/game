@@ -1,4 +1,6 @@
 const STORAGE_KEY = 'finish-line.lang';
+const MOBILE_CONTROLS_POSITION_KEY = 'finish-line.mobile-control-positions';
+const MOBILE_CONTROLS_EDIT_KEY = 'finish-line.mobile-controls-edit';
 const FALLBACK = 'en';
 
 let data = { languages: { en: 'English' }, translations: { en: {} } };
@@ -118,7 +120,35 @@ function renderSettings(modal) {
         list.appendChild(option);
     });
 
-    box.append(close, title, label, list);
+    const mobileControls = document.createElement('section');
+    mobileControls.className = 'mobile-controls-settings';
+    const mobileLabel = document.createElement('span');
+    mobileLabel.className = 'settings-label';
+    mobileLabel.textContent = t('settings.mobileControls');
+    const editLabel = document.createElement('label');
+    editLabel.className = 'mobile-controls-toggle';
+    const editToggle = document.createElement('input');
+    editToggle.type = 'checkbox';
+    editToggle.checked = localStorage.getItem(MOBILE_CONTROLS_EDIT_KEY) === 'true';
+    const editText = document.createElement('span');
+    editText.textContent = t('settings.moveControls');
+    editLabel.append(editToggle, editText);
+    const help = document.createElement('p');
+    help.className = 'mobile-controls-help';
+    help.textContent = t('settings.moveControlsHelp');
+    const reset = document.createElement('button');
+    reset.type = 'button';
+    reset.className = 'mobile-controls-reset';
+    reset.textContent = t('settings.resetControls');
+    editToggle.addEventListener('change', () => {
+        localStorage.setItem(MOBILE_CONTROLS_EDIT_KEY, String(editToggle.checked));
+    });
+    reset.addEventListener('click', () => {
+        localStorage.removeItem(MOBILE_CONTROLS_POSITION_KEY);
+    });
+    mobileControls.append(mobileLabel, editLabel, help, reset);
+
+    box.append(close, title, label, list, mobileControls);
     modal.appendChild(box);
 }
 

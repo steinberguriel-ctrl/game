@@ -250,13 +250,21 @@ Object.entries(controlElements).forEach(([name, element]) => {
     ['pointerup', 'pointercancel', 'lostpointercapture'].forEach(type => element.addEventListener(type, finishControlDrag));
 });
 loadMobileControlPositions();
-if (isMobileControlEditing()) {
-    touchControls.classList.add('is-position-editing');
-    const hint = document.createElement('div');
-    hint.className = 'touch-edit-hint';
-    hint.textContent = t('settings.moveControlsHelp');
-    document.querySelector('#game-screen').appendChild(hint);
+function updateMobileControlEditing() {
+    const editing = isMobileControlEditing();
+    touchControls.classList.toggle('is-position-editing', editing);
+    let hint = document.querySelector('.touch-edit-hint');
+    if (editing && !hint) {
+        hint = document.createElement('div');
+        hint.className = 'touch-edit-hint';
+        hint.textContent = t('settings.moveControlsHelp');
+        document.querySelector('#game-screen').appendChild(hint);
+    } else if (!editing) {
+        hint?.remove();
+    }
 }
+updateMobileControlEditing();
+window.addEventListener('mobile-controls-edit-change', updateMobileControlEditing);
 document.querySelectorAll('.touch-controls button').forEach(button => {
     const key = button.dataset.key;
     const release = () => keys.delete(key);
@@ -680,7 +688,7 @@ function update(dt) {
     const hitMovingObstacle = gameState.movingObstacles.some(obstacle => Math.abs(obstacle.position.x - gameState.x) < 1.1 && Math.abs(obstacle.position.y - gameState.y) < 1.5 && Math.abs(obstacle.position.z - gameState.z) < 2);
     const hitWall = gameState.rotatingWalls.some(wall => Math.abs(wall.position.x - gameState.x) < 1.2 && Math.abs(wall.position.y - gameState.y) < 2 && Math.abs(wall.position.z - gameState.z) < 2.2);
     const hitEnemy = gameState.enemies.some(enemy => Math.abs(enemy.position.x - gameState.x) < 1.2 && Math.abs(enemy.position.y - gameState.y) < 1.4 && Math.abs(enemy.position.z - gameState.z) < 1.4);
-    if (gameState.y < -1) lose(); else if (hitRock || hitMovingObstacle || hitWall || hitEnemy) lose('crash'); if (gameState.x >= gameState.goal) win(); if (player) { player.position.set(gameState.x, gameState.y, gameState.z); player.rotation.y = Math.PI / 2 + gameState.vx * .04; } const percent = Math.min(100, Math.max(0, Math.round((gameState.x / gameState.goal) * 100))); const bestKey = `finish-line.best.${gameState.level}`; if (percent > (Number(localStorage.getItem(bestKey)) || 0)) { localStorage.setItem(bestKey, String(percent)); document.querySelector('#level-best').textContent = `${percent}%`; } progressBar.style.width = `${percent}%`; distanceValue.textContent = `${percent}%`;     const cameraHeight = Math.max(15, gameState.y + 13); const cameraBehindOffset = 2; camera.position.x += ((gameState.x - cameraBehindOffset) - camera.position.x) * .16; camera.position.y += (cameraHeight - camera.position.y) * .12; camera.position.z += (gameState.z - camera.position.z) * .16; camera.lookAt(gameState.x + 5, Math.max(1.5, gameState.y - 1), gameState.z);
+    if (gameState.y < -1) lose(); else if (hitRock || hitMovingObstacle || hitWall || hitEnemy) lose('crash'); if (gameState.x >= gameState.goal) win(); if (player) { player.position.set(gameState.x, gameState.y, gameState.z); player.rotation.y = Math.PI / 2 + gameState.vx * .04; } const percent = Math.min(100, Math.max(0, Math.round((gameState.x / gameState.goal) * 100))); const bestKey = `finish-line.best.${gameState.level}`; if (percent > (Number(localStorage.getItem(bestKey)) || 0)) { localStorage.setItem(bestKey, String(percent)); document.querySelector('#level-best').textContent = `${percent}%`; } progressBar.style.width = `${percent}%`; distanceValue.textContent = `${percent}%`; const cameraHeight = Math.max(15, gameState.y + 13); const cameraBehindOffset = 2; camera.position.x += ((gameState.x - cameraBehindOffset) - camera.position.x) * .16; camera.position.y += (cameraHeight - camera.position.y) * .12; camera.position.z += (gameState.z - camera.position.z) * .16; camera.lookAt(gameState.x + 5, Math.max(1.5, gameState.y - 1), gameState.z);
 }
 function spawnEmberBurst(x, y, z, count) {
     const colors = ['#ffcf5c', '#ff9a3d', '#ff5c3d', '#ff2e2e'];
@@ -779,21 +787,21 @@ async function win() {
     if (gameState.level === 2) localStorage.setItem('finish-line.stage-two-complete', 'true');
     if (gameState.level === 3) localStorage.setItem('finish-line.stage-three-complete', 'true');
     playWin();
-    
+
     // Calculate coin rewards
     const collectedCoins = gameState.collectedCoins;
     const bonusCoins = 50;
     const totalCoins = collectedCoins + bonusCoins;
-    
+
     // Update win screen with coin information
     document.querySelector('#win-coins-collected').textContent = collectedCoins;
     document.querySelector('#win-total-coins').textContent = totalCoins;
-    
+
     // Save coins to storage
     const currentCoins = Number(localStorage.getItem('finish-line.coins')) || 0;
     const newTotalCoins = currentCoins + totalCoins;
     localStorage.setItem('finish-line.coins', String(newTotalCoins));
-    
+
     // Save game data to storage
     saveGameDataToStorage({
         coins: newTotalCoins,
@@ -801,7 +809,7 @@ async function win() {
         ownedSkins: JSON.parse(localStorage.getItem('finish-line.owned-skins') || '[]'),
         completedStages: getCompletedStages()
     });
-    
+
     // Show win screen
     showScreen('win');
 }

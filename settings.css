@@ -170,6 +170,7 @@ body:has(#game-screen:not(.hidden)) .settings-button {
 }
 
 @media (max-width: 600px) {
+
     /* avoids the header note running under the buttons on narrow screens */
     .home-header .header-note {
         display: none;
@@ -179,5 +180,15 @@ body:has(#game-screen:not(.hidden)) .settings-button {
         top: 9px;
         width: 34px;
         height: 34px;
+    }
+}
+
+@media (max-width: 760px) {
+    body:has(#game-screen:not(.hidden)) .settings-button {
+        display: grid;
+        top: max(54px, calc(env(safe-area-inset-top) + 48px));
+        right: max(10px, env(safe-area-inset-right));
+        left: auto;
+        transform: none;
     }
 }

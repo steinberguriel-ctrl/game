@@ -142,6 +142,7 @@ function renderSettings(modal) {
     reset.textContent = t('settings.resetControls');
     editToggle.addEventListener('change', () => {
         localStorage.setItem(MOBILE_CONTROLS_EDIT_KEY, String(editToggle.checked));
+        window.dispatchEvent(new Event('mobile-controls-edit-change'));
     });
     reset.addEventListener('click', () => {
         localStorage.removeItem(MOBILE_CONTROLS_POSITION_KEY);
